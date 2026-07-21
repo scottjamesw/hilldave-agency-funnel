@@ -1,54 +1,79 @@
 # HillDave Agency Funnel — Handoff / Resume Notes
 
-_Last updated: 2026-07-21_
+_Last updated: 2026-07-21 — **WORKING END-TO-END.** Only optional follow-ups remain (email notification)._
 
 ## TL;DR
-The landing page is **built, deployed, and live**. All 5 jobs are done. The form works end-to-end (submit → HubSpot scheduler → booking creates the contact). **One thing is still blocking the full-data capture:** HubSpot is spam-blocking the form submissions because the site domain isn't registered in HubSpot yet. **Your one action to finish:** register `production.hilldavelabs.com` in HubSpot's tracking settings (details below), then submit one test.
+The landing page is **built, deployed, live, and fully working.** The form captures **all 7 fields into HubSpot** AND redirects to the scheduler. The long-running blocker (submissions marked spam) is **SOLVED**. The only thing left — and it's optional — is setting up an **email notification** so you get pinged on each submission. You can do that anytime.
 
 ---
 
-## Where it lives
+## ✅ Confirmed working (2026-07-21)
+A live test submission landed all fields on the contact:
+| Field | Captured |
+|---|---|
+| Name | Scott |
+| Brand → `company` | HillDave LLC |
+| Website → `website` | http://www.hilldave.com |
+| What your brand does → `what_does_your_brand_do__what_is_the_benefit_` | "We were an ad agency." |
+| Top 3 competitors → `your_top_three_competitors_` | "This, that, this, that" |
+| Monthly ad spend → `monthly_ad_spend` | $15,000 – $50,000 |
+| Email | scott.weitz@hilldave.com |
 
+**Flow:** form submit → all 7 fields POST to HubSpot Forms API → redirect to scheduler (name/email/brand prefilled) → booking creates/updates the contact.
+
+---
+
+## 🔑 What finally fixed the "spam" problem
+HubSpot was marking every submission as spam, type **"Unregistered Site Domain."** The fix was adding the **root domain** to HubSpot's tracking settings:
+- **Settings → Tracking & Analytics → Tracking Code → Additional site domains → added `hilldavelabs.com`** (External).
+- Key lesson: HubSpot tracks at the **root-domain** level. Adding the subdomain (`production.hilldavelabs.com`) alone did NOT work — it needed the root `hilldavelabs.com`.
+- **When you add a real subdomain later, add its root domain here too.**
+
+---
+
+## Where everything lives
 | Thing | Value |
 |---|---|
 | **Live page** | https://production.hilldavelabs.com/agency-funnel/ |
-| **GitHub** | https://github.com/scottjamesw/hilldave-agency-funnel (public — for Diego) · branches `main` + `agency-funnel`, folder `agency-funnel/` |
+| **GitHub** | https://github.com/scottjamesw/hilldave-agency-funnel (public) · branches `main` + `agency-funnel`, folder `agency-funnel/` |
 | **Local repo** | `~/hilldave-agency-funnel/` |
-| **Droplet** | `root@192.34.59.130` (key `~/.ssh/hilldave_do`) · webroot `/var/www/hilldave-agency-funnel/` · served at the `/agency-funnel/` path via a symlink from the `production.hilldavelabs.com` webroot |
+| **Droplet** | `root@192.34.59.130` (key `~/.ssh/hilldave_do`) · webroot `/var/www/hilldave-agency-funnel/` |
 | **HubSpot portal** | `50739084` (region `na1`) |
-| **HubSpot form GUID** | `a60dae9a-38f3-4a92-874b-4e20bc74bb81` |
+| **HubSpot form** | "AdAgency Submission Form" · GUID `a60dae9a-38f3-4a92-874b-4e20bc74bb81` |
 | **Scheduler** | https://meetings.hubspot.com/scott-weitz/hilldave-first-meet |
+| **Your contact record** | https://app.hubspot.com/contacts/50739084/record/0-1/178165856160 |
 
 ---
 
 ## The 5 jobs — all done ✅
-1. **Extracted inline assets** — base64 logos + video posters pulled out to `assets/logos/` and `assets/posters/`. Page went from **442 KB → ~24 KB**.
-2. **Wired the marquee videos** — 4 ad videos transcoded + compressed (**168 MB → 15 MB**) into `assets/videos/`, added to all 8 marquee tiles.
-   - `driver.mp4` = desert drive · `mom.mp4` = Baby Ktan (portrait) · `redcarpet.mp4` = red carpet · `cards.mp4` = card game (the concert/funeral/trailer-park video `vr24la`)
-   - Sources are in Desktop folder `Content for Landing Page/`.
-   - Hero video (top-right of hero) intentionally left as a **static poster** (`mom.jpg`).
-3. **Form** — kept the custom-styled form (pixel-perfect), wired it to **submit all 7 fields to the HubSpot Forms API AND redirect to the scheduler** with name/email/brand prefilled.
-4. **"Book a meeting" buttons** — verified they scroll to the form (`#book`). No change needed.
-5. **Deployed** — live on DigitalOcean + pushed to GitHub.
+1. **Extracted assets** — base64 logos/posters → `assets/logos/`, `assets/posters/` (442 KB → ~25 KB).
+2. **Wired videos** — 4 ad clips transcoded/compressed (168 MB → 15 MB) → `assets/videos/`, on all 8 marquee tiles. Hero video left as a static poster on purpose. Sources: Desktop `Content for Landing Page/`.
+3. **Form** — custom design kept; submits all 7 fields to the Forms API + redirects to scheduler with name/email/brand prefill.
+4. **"Book a meeting" buttons** — scroll to the form (`#book`). No change needed.
+5. **Deployed** — live on DigitalOcean + GitHub.
+
+Also added along the way: HubSpot tracking script (`//js.hs-scripts.com/50739084.js`), and the Website field was changed from `type="url"` to `type="text"` so bare domains (`www.hilldave.com`) don't get rejected at submit.
 
 ---
 
-## ⛔ The one remaining blocker — HubSpot "Unregistered Site Domain"
+## ▶ TO DO WHEN YOU COME BACK (all optional)
 
-**Symptom:** Form submissions return HTTP 200 but **don't create/update the contact's fields**. HubSpot's **Spam Submissions** log shows them flagged as **"Unregistered Site Domain."**
+### 1. Email notification on each submission (the "so I know who booked" piece)
+Set up a HubSpot **workflow**:
+- **Automation → Workflows → Create** → **Contact-based**.
+- Enrollment trigger: **"Form submission"** → the **"AdAgency Submission Form."**
+- Action: **Send internal email / in-app notification** to `scott.weitz@hilldave.com` (include the contact's brand, website, competitors, benefit, ad-spend properties in the email body via personalization tokens).
+- Turn it on.
+- _(Ask Claude to walk through the exact clicks if the UI differs.)_
 
-**Cause:** HubSpot auto-flags submissions from any domain not registered in its analytics/tracking settings. `production.hilldavelabs.com` isn't registered.
+### 2. See all leads at a glance
+Contacts list → **Edit columns** → add: Company, Website, Your top three competitors, What does your brand do, Monthly ad spend → save as a view "Agency Intake Leads." Every new lead then shows its full intake in the columns.
 
-**What currently works despite this:** name + email + the meeting booking (booking a slot creates/updates the contact and logs the "Meetings Link" conversion). **What's missing:** the 5 qualifying fields (brand, website, competitors, benefit, ad spend) — which is the data you need to prep client work.
+### 3. Clean your own record
+Your contact currently holds the test values ("This, that, this, that," "We were an ad agency," etc.) — blank those out if you want your real record clean: https://app.hubspot.com/contacts/50739084/record/0-1/178165856160
 
-### ▶ Resume steps (do these in order)
-1. **Register the domain in HubSpot:**
-   - HubSpot → **Marketing → Forms** → click **"Review site domains"** in the yellow *"Unknown Domains…"* banner
-   - _(or)_ **Settings ⚙️ → Tracking & Analytics → Tracking Code → Domains**
-   - Add **`production.hilldavelabs.com`** → **Save**
-2. **Hard-refresh** the landing page (Cmd+Shift+R) and **submit the form once more** (old submissions won't retro-unblock).
-3. **Verify:** ask Claude to check the contact via the HubSpot API for all 7 fields, or open the contact in HubSpot. If brand/website/competitors/benefit/ad-spend are populated → **done.**
-4. **Turn on the submission-notification email** (so you're emailed each intake): HubSpot → Marketing → Forms → your form → **Automation / Options** → add `scott.weitz@hilldave.com` as a notification recipient. (Note: the "Send email → Send Unknown Email" node in Automation is a *follow-up email to the submitter* — not this; leave it.)
+### 4. Custom subdomain (when ready)
+Set up e.g. `agency.hilldavelabs.com`: DNS A record → `192.34.59.130`, then dedicated nginx block + certbot on the droplet (Claude knows the steps). **Then add its root domain to HubSpot's Additional Site Domains** (same place as the fix above) so submissions keep working.
 
 ---
 
@@ -61,22 +86,12 @@ The landing page is **built, deployed, and live**. All 5 jobs are done. The form
 | What does your brand do?… | `what_does_your_brand_do__what_is_the_benefit_` | — |
 | Your top three competitors | `your_top_three_competitors_` | — |
 | Email | `email` | `email` |
-| Monthly ad spend | `monthly_ad_spend` | — |
-
-`monthly_ad_spend` property now has all 5 tiers (the `$5,000 – $15,000` one was missing and you added it).
+| Monthly ad spend | `monthly_ad_spend` (5 tiers) | — |
 
 ---
 
-## Fixes made along the way
-- **Website field** was `type="url"` and rejected bare domains (`www.hilldave.com`) → changed to `type="text"` so users aren't blocked.
-- **Added the HubSpot tracking script** (`//js.hs-scripts.com/50739084.js`) — sets the `hubspotutk` cookie so submissions are identified (the one tracking-script exception you approved).
-
-## Optional / later
-- **Custom subdomain** (e.g. `agency.hilldavelabs.com`): needs a DNS A record → `192.34.59.130`, then a dedicated nginx block + certbot. **Also add that subdomain to HubSpot site domains** when you do.
-- **Redeploy after edits:** `scp` the file to `/var/www/hilldave-agency-funnel/index.html` on the droplet + push to GitHub (Claude knows the exact commands).
-- 3 test spam submissions (~6:26–6:32 AM) + 1 real (~14:10) sit in HubSpot's spam log — harmless, auto-delete in 90 days.
-
----
+## Redeploy after edits
+`scp` the file to `/var/www/hilldave-agency-funnel/index.html` on the droplet + `git push`. Claude knows the exact commands.
 
 ## How to resume with Claude Code
-Point Claude at this file: _"Read `~/hilldave-agency-funnel/HANDOFF.md` — I've registered the domain in HubSpot, let's verify the form captures all 7 fields."_
+_"Read `~/hilldave-agency-funnel/HANDOFF.md` — the funnel is working; help me set up the HubSpot email notification workflow."_
