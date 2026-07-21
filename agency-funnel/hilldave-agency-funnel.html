@@ -437,34 +437,34 @@
       <p class="lead fx d2">Before the meeting, we study the three competitors you name: the ads they run, where they run them, what performs. Then we write the ad copy to beat them. In thirty minutes on Google Meet, we walk you through the copy and the strategy. Hire us or not, the copy is yours.</p>
     </div>
     <div class="booking-form fx d2">
-      <form onsubmit="return false;">
+      <form id="intake-form">
         <div class="field">
           <label for="name">Name</label>
-          <input id="name" type="text" placeholder="Your name" required>
+          <input id="name" name="firstname" type="text" placeholder="Your name" required>
         </div>
         <div class="field">
           <label for="brand">Brand</label>
-          <input id="brand" type="text" placeholder="Your brand" required>
+          <input id="brand" name="company" type="text" placeholder="Your brand" required>
         </div>
         <div class="field">
           <label for="url">Website</label>
-          <input id="url" type="url" placeholder="yourbrand.com" required>
+          <input id="url" name="website" type="url" placeholder="yourbrand.com" required>
         </div>
         <div class="field">
           <label for="benefit">What does your brand do? What is the benefit?</label>
-          <textarea id="benefit" placeholder="One or two sentences." rows="3" required></textarea>
+          <textarea id="benefit" name="what_does_your_brand_do__what_is_the_benefit_" placeholder="One or two sentences." rows="3" required></textarea>
         </div>
         <div class="field">
           <label for="competitors">Your top three competitors</label>
-          <textarea id="competitors" placeholder="Brand names or URLs. At least three." rows="3" required></textarea>
+          <textarea id="competitors" name="your_top_three_competitors_" placeholder="Brand names or URLs. At least three." rows="3" required></textarea>
         </div>
         <div class="field">
           <label for="email">Email</label>
-          <input id="email" type="email" placeholder="you@yourbrand.com" required>
+          <input id="email" name="email" type="email" placeholder="you@yourbrand.com" required>
         </div>
         <div class="field">
           <label for="spend">Monthly ad spend</label>
-          <select id="spend" required>
+          <select id="spend" name="monthly_ad_spend" required>
             <option value="" selected disabled>Select a range</option>
             <option>Under $5,000</option>
             <option>$5,000 &ndash; $15,000</option>
@@ -502,6 +502,56 @@
     });
   },{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
   els.forEach(function(el){io.observe(el)});
+})();
+</script>
+
+<script>
+/* Intake form -> HubSpot Forms API (portal 50739084, form a60dae9a-38f3-4a92-874b-4e20bc74bb81).
+   On success, redirect to the Meetings scheduler configured on the HubSpot form. */
+(function(){
+  var form = document.getElementById('intake-form');
+  if(!form) return;
+  var ENDPOINT = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
+  var MEETINGS_URL = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
+  var FIELDS = ['firstname','company','website','what_does_your_brand_do__what_is_the_benefit_','your_top_three_competitors_','email','monthly_ad_spend'];
+
+  function cookie(name){
+    var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!form.reportValidity()) return;
+    var btn = form.querySelector('button[type="submit"]');
+    if(btn){ btn.disabled = true; }
+
+    var payload = {
+      fields: FIELDS.map(function(n){
+        var el = form.elements[n];
+        return { objectTypeId: '0-1', name: n, value: el ? el.value.trim() : '' };
+      }),
+      context: { pageUri: window.location.href, pageName: document.title }
+    };
+    var hutk = cookie('hubspotutk');
+    if(hutk){ payload.context.hutk = hutk; }
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if(res.ok){
+        window.location.href = MEETINGS_URL;
+      } else {
+        if(btn){ btn.disabled = false; }
+        res.text().then(function(t){ console.error('HubSpot submit failed:', res.status, t); });
+      }
+    }).catch(function(err){
+      if(btn){ btn.disabled = false; }
+      console.error('HubSpot submit error:', err);
+    });
+  });
 })();
 </script>
 
