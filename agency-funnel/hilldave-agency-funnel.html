@@ -434,7 +434,7 @@
     <div class="booking-copy">
       <span class="label fx">Book a meeting</span>
       <h2 class="fx d1" style="margin-top:26px">Leave with the copy<span class="dot">.</span></h2>
-      <p class="lead fx d2">Before the meeting, we read your competitors: the ads they run, where they run them, what performs. Then we write the ad copy to beat them. In thirty minutes on Google Meet, we walk you through the copy and the strategy. Hire us or not, the copy is yours.</p>
+      <p class="lead fx d2">Before the meeting, we study the three competitors you name: the ads they run, where they run them, what performs. Then we write the ad copy to beat them. In thirty minutes on Google Meet, we walk you through the copy and the strategy. Hire us or not, the copy is yours.</p>
     </div>
     <div class="booking-form fx d2">
       <form onsubmit="return false;">
@@ -461,6 +461,17 @@
         <div class="field">
           <label for="email">Email</label>
           <input id="email" type="email" placeholder="you@yourbrand.com" required>
+        </div>
+        <div class="field">
+          <label for="spend">Monthly ad spend</label>
+          <select id="spend" required>
+            <option value="" selected disabled>Select a range</option>
+            <option>Under $5,000</option>
+            <option>$5,000 &ndash; $15,000</option>
+            <option>$15,000 &ndash; $50,000</option>
+            <option>$50,000 &ndash; $150,000</option>
+            <option>$150,000+</option>
+          </select>
         </div>
         <button type="submit" class="cta">Book a meeting &rarr;</button>
         <p class="form-note">Submitting takes you to slot selection. You will receive a Google Meet link by email. Your ad copy is prepared before your slot.</p>
