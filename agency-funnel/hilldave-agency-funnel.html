@@ -506,51 +506,33 @@
 </script>
 
 <script>
-/* Intake form -> HubSpot Forms API (portal 50739084, form a60dae9a-38f3-4a92-874b-4e20bc74bb81).
-   On success, redirect to the Meetings scheduler configured on the HubSpot form. */
+/* Intake form -> HubSpot Meetings scheduler.
+   On submit, redirect to the scheduler with name, email, and brand prefilled.
+   The contact is created in HubSpot natively when a slot is booked. */
 (function(){
   var form = document.getElementById('intake-form');
   if(!form) return;
-  var ENDPOINT = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
-  var MEETINGS_URL = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
-  var FIELDS = ['firstname','company','website','what_does_your_brand_do__what_is_the_benefit_','your_top_three_competitors_','email','monthly_ad_spend'];
-
-  function cookie(name){
-    var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
-  }
+  var SCHEDULER = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if(!form.reportValidity()) return;
-    var btn = form.querySelector('button[type="submit"]');
-    if(btn){ btn.disabled = true; }
 
-    var payload = {
-      fields: FIELDS.map(function(n){
-        var el = form.elements[n];
-        return { objectTypeId: '0-1', name: n, value: el ? el.value.trim() : '' };
-      }),
-      context: { pageUri: window.location.href, pageName: document.title }
-    };
-    var hutk = cookie('hubspotutk');
-    if(hutk){ payload.context.hutk = hutk; }
+    var name  = (form.elements['firstname'].value || '').trim();
+    var email = (form.elements['email'].value || '').trim();
+    var brand = (form.elements['company'].value || '').trim();
 
-    fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(res){
-      if(res.ok){
-        window.location.href = MEETINGS_URL;
-      } else {
-        if(btn){ btn.disabled = false; }
-        res.text().then(function(t){ console.error('HubSpot submit failed:', res.status, t); });
-      }
-    }).catch(function(err){
-      if(btn){ btn.disabled = false; }
-      console.error('HubSpot submit error:', err);
-    });
+    var sp = name.indexOf(' ');
+    var first = sp === -1 ? name : name.slice(0, sp);
+    var last  = sp === -1 ? ''   : name.slice(sp + 1);
+
+    var params = new URLSearchParams();
+    if(first) params.set('firstName', first);
+    if(last)  params.set('lastName', last);
+    if(email) params.set('email', email);
+    if(brand) params.set('company', brand);
+
+    window.location.href = SCHEDULER + '?' + params.toString();
   });
 })();
 </script>
