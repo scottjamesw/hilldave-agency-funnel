@@ -505,34 +505,63 @@
 })();
 </script>
 
+<!-- HubSpot tracking (sets hubspotutk so form submissions are identified, not flagged as suspect) -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/50739084.js"></script>
+
 <script>
-/* Intake form -> HubSpot Meetings scheduler.
-   On submit, redirect to the scheduler with name, email, and brand prefilled.
-   The contact is created in HubSpot natively when a slot is booked. */
+/* Intake form: save all 7 fields to HubSpot (Forms API), then redirect to the
+   Meetings scheduler with name/email/brand prefilled. Redirects either way so
+   the user always reaches slot selection. */
 (function(){
   var form = document.getElementById('intake-form');
   if(!form) return;
+  var ENDPOINT  = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
   var SCHEDULER = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
+  var FIELDS = ['firstname','company','website','what_does_your_brand_do__what_is_the_benefit_','your_top_three_competitors_','email','monthly_ad_spend'];
+
+  function cookie(name){
+    var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if(!form.reportValidity()) return;
+    var btn = form.querySelector('button[type="submit"]');
+    if(btn){ btn.disabled = true; }
 
+    // Build the scheduler prefill URL (name split into first/last)
     var name  = (form.elements['firstname'].value || '').trim();
     var email = (form.elements['email'].value || '').trim();
     var brand = (form.elements['company'].value || '').trim();
-
     var sp = name.indexOf(' ');
-    var first = sp === -1 ? name : name.slice(0, sp);
-    var last  = sp === -1 ? ''   : name.slice(sp + 1);
-
     var params = new URLSearchParams();
-    if(first) params.set('firstName', first);
-    if(last)  params.set('lastName', last);
+    if(name) params.set('firstName', sp === -1 ? name : name.slice(0, sp));
+    if(sp !== -1) params.set('lastName', name.slice(sp + 1));
     if(email) params.set('email', email);
     if(brand) params.set('company', brand);
+    var schedulerUrl = SCHEDULER + '?' + params.toString();
 
-    window.location.href = SCHEDULER + '?' + params.toString();
+    var done = false;
+    function go(){ if(!done){ done = true; window.location.href = schedulerUrl; } }
+
+    // Save all 7 fields to HubSpot
+    var payload = {
+      fields: FIELDS.map(function(n){
+        var el = form.elements[n];
+        return { objectTypeId: '0-1', name: n, value: el ? el.value.trim() : '' };
+      }),
+      context: { pageUri: window.location.href, pageName: document.title }
+    };
+    var hutk = cookie('hubspotutk');
+    if(hutk){ payload.context.hutk = hutk; }
+
+    setTimeout(go, 4000); // never strand the user on a slow request
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(){ go(); }, function(err){ console.error('HubSpot submit error:', err); go(); });
   });
 })();
 </script>
