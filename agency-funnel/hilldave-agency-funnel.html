@@ -132,10 +132,13 @@
     margin:22px 0 6px;
   }
   .proofband .logowall img{
-    height:30px;width:auto;max-width:132px;object-fit:contain;
-    filter:grayscale(1) brightness(0) invert(.68);
-    opacity:.66;transition:opacity .2s ease;
+    height:36px;width:auto;max-width:170px;object-fit:contain;
+    filter:grayscale(1) brightness(0) invert(.72);
+    opacity:.72;transition:opacity .2s ease;
   }
+  /* script wordmarks read smaller than glyphs at equal height — give them more */
+  .proofband .logowall img[alt="Coca-Cola"]{height:48px}
+  .proofband .logowall img[alt="Disney"]{height:40px}
   .proofband .logowall img:hover{opacity:.95}
   .proofband .logowall .sb{
     font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
