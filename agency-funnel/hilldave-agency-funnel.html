@@ -127,6 +127,20 @@
     margin-top:12px;
   }
   .proofband .heritage span{color:var(--orange)}
+  .proofband .logowall{
+    display:flex;flex-wrap:wrap;align-items:center;gap:26px 40px;
+    margin:22px 0 6px;
+  }
+  .proofband .logowall img{
+    height:30px;width:auto;max-width:132px;object-fit:contain;
+    filter:grayscale(1) brightness(0) invert(.68);
+    opacity:.66;transition:opacity .2s ease;
+  }
+  .proofband .logowall img:hover{opacity:.95}
+  .proofband .logowall .sb{
+    font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
+    color:#9a9a9a;
+  }
   .proofband .band-note{
     color:#cfcfcf;
     font-size:15px;
@@ -139,9 +153,8 @@
   /* ---- Sections ---- */
   section{padding:104px 0}
   .sec-head{margin-bottom:0}
-  .rail{grid-column:1/4}
-  .rail .label{display:block;position:sticky;top:40px}
-  .main{grid-column:4/13}
+  .main{grid-column:1/12}
+  .main > .label{display:block;margin-bottom:20px}
   h2{
     font-size:clamp(40px,5.2vw,72px);
     line-height:.96;
@@ -163,7 +176,7 @@
   .tile video,.tile img{display:block;height:100%;width:auto}
 
   /* ---- Deliverables (spec sheet) ---- */
-  .deliver-sec .main{grid-column:4/13}
+  .deliver-sec .main{grid-column:1/12}
   .deliver{list-style:none;margin-top:48px;counter-reset:dl}
   .deliver li{
     display:grid;grid-template-columns:80px 1fr;gap:24px;align-items:baseline;
@@ -240,6 +253,13 @@
     margin-top:34px;
     line-height:1;
   }
+  .price-note{
+    font-size:clamp(16px,1.5vw,19px);
+    color:var(--gray);
+    font-weight:500;
+    margin-top:16px;
+    line-height:1.5;
+  }
   /* ---- Mid-page CTA ---- */
   .mid-cta{padding:72px 0}
   .mid-cta .lead{max-width:52ch}
@@ -252,6 +272,17 @@
   .booking .grid12{align-items:start}
   .booking-copy{grid-column:1/7}
   .booking-form{grid-column:8/13}
+  .book-steps{list-style:none;margin-top:34px}
+  .book-steps li{
+    display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start;
+    padding:18px 0;border-top:1px solid #333;
+  }
+  .book-steps li:last-child{border-bottom:1px solid #333}
+  .book-steps .bs-num{
+    font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);
+    line-height:1;letter-spacing:1px;
+  }
+  .book-steps .bs-txt{color:#cfcfcf;font-size:16px;line-height:1.55}
   form{margin-top:8px}
   .field{margin-bottom:28px}
   .field label{
@@ -285,8 +316,6 @@
     .hero-copy{grid-column:1/13}
     .hero-media{grid-column:1/13;margin-top:44px}
     .hero-tile{max-width:340px;margin:0 auto 0 0}
-    .rail{grid-column:1/13;margin-bottom:18px}
-    .rail .label{position:static}
     .main{grid-column:1/13}
     section{padding:72px 0}
     .standard-sec{padding:96px 0}
@@ -326,10 +355,10 @@
         <span class="fx d1">Generation is everywhere.</span>
         <span class="fx d2 hero-line2">Judgment is <span class="nobr">not<span class="dot">.</span></span></span>
       </h1>
-      <p class="sub fx d3">Your data. Your competitors&rsquo; ads. Platform trends. What wins on every channel right now. One system pulls it together, grounds it in your brand, sets the strategy, and makes the ads and the content. One job: drive revenue. The HillDave Labs agency runs it for you.</p>
+      <p class="sub fx d3">Data. Analysis. Strategy. Creative. Social and media buys optimized across every platform. One system, one job: drive revenue, build the brand.</p>
       <div class="fx d4">
         <a href="#book" class="cta">Book a meeting &rarr;</a>
-        <span class="micro">Every meeting includes free ad copy built to beat your competitors. Yours either way.</span>
+        <span class="micro">Every meeting includes free brand insights and ad copy &mdash; built to beat your competitors. Yours.</span>
       </div>
     </div>
     <div class="hero-media fx d3">
@@ -342,20 +371,26 @@
 
 <div class="proofband">
   <div class="wrap">
-    <div class="heritage-label fx">The standard comes from thirty years of Fortune 500 production</div>
-    <div class="heritage fx d1">Coca-Cola &middot; PepsiCo &middot; Microsoft &middot; AT&amp;T &middot; Disney &middot; GM &middot; <span>Super Bowl campaigns</span></div>
+    <div class="heritage-label fx">Thirty years of Fortune 500 production &mdash; the team&rsquo;s work has shipped for</div>
+    <div class="logowall fx d1" aria-label="Brands the team's work has shipped for">
+      <img src="assets/logos/brands/coca-cola.svg" alt="Coca-Cola">
+      <img src="assets/logos/brands/pepsico.svg" alt="PepsiCo">
+      <img src="assets/logos/brands/microsoft.svg" alt="Microsoft">
+      <img src="assets/logos/brands/att.svg" alt="AT&amp;T">
+      <img src="assets/logos/brands/disney.svg" alt="Disney">
+      <img src="assets/logos/brands/gm.svg" alt="GM">
+      <span class="sb">+ Super Bowl campaigns</span>
+    </div>
     <div class="today-label fx d2" style="margin-top:34px">Running today</div>
     <div class="roster fx d3">Snype &middot; Baby Ktan &middot; Fundstrat &middot; Mexxo Tequila &middot; and more</div>
-    <p class="band-note fx d4">This agency is live. Client work ships daily, in relentless pursuit of one thing: your revenue.</p>
   </div>
 </div>
 
 <section class="work">
   <div class="wrap grid12">
-    <div class="rail"><span class="label fx">The work</span></div>
     <div class="main">
       <h2 class="fx">The ads are the last step<span class="dot">.</span></h2>
-      <p class="lead fx d1">Brand position. Data. Analytics. Strategy. Copy. Content production. Optimization. Then, this.</p>
+      <p class="lead fx d1">Anyone can generate an ad now. Making one that works takes everything upstream &mdash; brand, data, strategy, copy. This is what that looks like.</p>
     </div>
   </div>
   <!-- WORK MARQUEE: tiles auto-scroll and loop seamlessly. The track is duplicated once
@@ -377,20 +412,20 @@
 
 <section class="pricing">
   <div class="wrap grid12">
-    <div class="rail"><span class="label fx">Pricing</span></div>
     <div class="main">
-      <h2 class="fx">One system. Fortune 500 discipline<span class="dot">.</span></h2>
+      <span class="label fx">Pricing</span>
+      <h2 class="fx d1">One system. Fortune 500 discipline<span class="dot">.</span></h2>
       <p class="lead fx d1">The judgment that built iconic campaigns for the world&rsquo;s biggest brands. And now, you.</p>
       <p class="now-you fx d2">Starting at $1,500 a month<span class="dot">.</span></p>
+      <p class="price-note fx d3">Less than a freelancer. A whole agency&rsquo;s judgment.</p>
     </div>
   </div>
 </section>
 
 <section class="mid-cta">
   <div class="wrap grid12">
-    <div class="rail"><span class="label fx">The offer</span></div>
     <div class="main">
-      <p class="lead fx" style="margin-top:0">Get free ad copy built to beat your competitors. We walk you through it when we meet. Yours either way.</p>
+      <p class="lead fx" style="margin-top:0">Free brand insights and ad copy built to beat your competitors &mdash; walked through live when we meet. Yours to keep, hire us or not.</p>
       <a href="#book" class="cta fx d1" style="margin-top:28px;display:inline-block">Book a meeting &rarr;</a>
     </div>
   </div>
@@ -398,33 +433,19 @@
 
 <section class="deliver-sec">
   <div class="wrap grid12">
-    <div class="rail"><span class="label fx">What an engagement delivers</span></div>
     <div class="main">
-      <h2 class="fx">Seven steps. One outcome<span class="dot">.</span></h2>
+      <span class="label fx">What an engagement delivers</span>
+      <h2 class="fx d1">Seven steps. One outcome<span class="dot">.</span></h2>
       <ul class="deliver">
-        <li class="fx"><span><b>Your brand bible and brand position,</b> defined and written down.</span></li>
-        <li class="fx"><span><b>Your data, read:</b> channels, ad accounts, competitors, trends.</span></li>
-        <li class="fx"><span><b>Your analytics,</b> tracked and interpreted. What performs and why.</span></li>
-        <li class="fx"><span><b>Your winning strategy,</b> set from the data.</span></li>
-        <li class="fx"><span><b>Your copy,</b> written to convert.</span></li>
-        <li class="fx"><span><b>Your creative and content,</b> produced on the HillDave Video Engine and published on schedule.</span></li>
-        <li class="fx"><span><b>Your results, optimized.</b> Fed back into the strategy.</span></li>
+        <li class="fx"><span><b>Your brand bible and position</b> &mdash; defined and written down.</span></li>
+        <li class="fx"><span><b>Your data, read</b> &mdash; channels, ad accounts, competitors, trends.</span></li>
+        <li class="fx"><span><b>Your analytics, interpreted</b> &mdash; what performs, and why.</span></li>
+        <li class="fx"><span><b>Your winning strategy</b> &mdash; set from the data.</span></li>
+        <li class="fx"><span><b>Your copy</b> &mdash; written to convert.</span></li>
+        <li class="fx"><span><b>Your creative and content</b> &mdash; produced on the HillDave Video Engine, published on schedule.</span></li>
+        <li class="fx"><span><b>Your results, optimized</b> &mdash; fed back into the strategy.</span></li>
       </ul>
       <p class="deliver-close fx">The full cycle that took an agency team the better part of a year ships in weeks. At a higher standard.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap grid12">
-    <div class="rail"><span class="label fx">How it works</span></div>
-    <div class="main">
-      <h2 class="fx">How you get your free ad copy<span class="dot">.</span></h2>
-      <div class="steps">
-        <div class="step fx"><div class="num">1</div><p>Book a meeting. Tell us your brand and your site.</p></div>
-        <div class="step fx d1"><div class="num">2</div><p>We read your competitors and write ad copy built to beat them.</p></div>
-        <div class="step fx d2"><div class="num">3</div><p>We walk you through the copy on Google Meet. Hire us, or don&rsquo;t. The copy is yours.</p></div>
-      </div>
     </div>
   </div>
 </section>
@@ -433,8 +454,12 @@
   <div class="wrap grid12">
     <div class="booking-copy">
       <span class="label fx">Book a meeting</span>
-      <h2 class="fx d1" style="margin-top:26px">Leave with the copy<span class="dot">.</span></h2>
-      <p class="lead fx d2">Before the meeting, we study the three competitors you name: the ads they run, where they run them, what performs. Then we write the ad copy to beat them. In thirty minutes on Google Meet, we walk you through the copy and the strategy. Hire us or not, the copy is yours.</p>
+      <h2 class="fx d1" style="margin-top:26px">Leave with the insights. And the copy<span class="dot">.</span></h2>
+      <ol class="book-steps fx d2">
+        <li><span class="bs-num">1</span><span class="bs-txt">Book a meeting and name your top three competitors.</span></li>
+        <li><span class="bs-num">2</span><span class="bs-txt">Before we meet, we study them &mdash; the ads they run, where, and what&rsquo;s working &mdash; then write brand insights and ad copy built to beat them.</span></li>
+        <li><span class="bs-num">3</span><span class="bs-txt">In thirty minutes on Google Meet, we walk you through it all. Hire us or not, it&rsquo;s yours to keep.</span></li>
+      </ol>
     </div>
     <div class="booking-form fx d2">
       <form id="intake-form">
