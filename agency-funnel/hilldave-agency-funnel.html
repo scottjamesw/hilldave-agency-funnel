@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HillDave Agency — Generation Is Everywhere. Judgment Is Not.</title>
-<meta name="description" content="Generation is everywhere. Judgment is not. The HillDave Labs agency reads your data and your competitors, sets the strategy that wins, and produces the work. Held to a thirty-year Fortune 500 standard.">
+<meta name="description" content="Before we meet, we write your brand position from your site and build the first ads from it. Yours either way. Thirty years of Fortune 500 production.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +16,13 @@
     --light:#F5F5F5;
     --white:#FFFFFF;
     --maxw:1240px;
+    /* Vertical rhythm: one 8px-based scale, so band spacing is a decision and not a guess. */
+    --s3:24px;
+    --s5:48px;
+    --s6:64px;
+    --s7:88px;
+    --s8:120px;
+    --s9:152px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -51,16 +58,34 @@
   /* ---- Header ---- */
   header{padding:22px 0}
   header .wrap{display:flex;align-items:center;justify-content:space-between}
-  .logo{height:76px;display:block}
+  /* Lockup: portrait mark + live type. One asset, two treatments —
+     multiply drops the white on light grounds, invert+screen drops the black on dark. */
+  .lockup{display:flex;align-items:center;gap:14px}
+  .lockup-mark{height:62px;width:auto;display:block;mix-blend-mode:multiply}
+  .lockup-type{display:flex;flex-direction:column;line-height:1}
+  .lockup-name{
+    font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--charcoal);
+  }
+  .lockup-tag{
+    font-size:10px;font-weight:600;letter-spacing:3.5px;text-transform:uppercase;
+    color:var(--gray);margin-top:5px;
+  }
+  /* Dark ground gets the purpose-made white-on-black art. Inverting the light
+     asset instead turned the stipple to mush. */
+  .lockup-dark .lockup-mark{mix-blend-mode:screen}
+  .lockup-dark .lockup-name{color:var(--white)}
+  .lockup-dark .lockup-tag{color:var(--orange)}
   .header-cta{
     font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
     color:var(--charcoal);text-decoration:none;border-bottom:2px solid var(--orange);
     padding-bottom:3px;
   }
   .header-cta:hover{color:var(--orange)}
+  .header-cta:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
 
   /* ---- Hero ---- */
-  .hero{padding:72px 0 72px;position:relative}
+  .hero{padding:var(--s7) 0;position:relative}
   .hero .grid12{align-items:start}
   .hero-copy{grid-column:1/9;position:relative;z-index:2}
   .hero-media{grid-column:9/13;position:relative;z-index:3}
@@ -93,23 +118,27 @@
   }
   .cta:hover{background:#e55a28;transform:translateY(-2px)}
   .cta:focus-visible{outline:3px solid var(--charcoal);outline-offset:3px}
+  /* The offer. Orange left rule marks it as a promise — same device as .capacity,
+     so the two places we make a commitment look like each other. */
   .micro{
     display:block;
-    color:var(--gray);
-    font-size:14px;
-    margin-top:18px;
-    max-width:52ch;
+    color:var(--charcoal);
+    font-size:16px;
+    font-weight:500;
+    margin-top:28px;
+    max-width:46ch;
     line-height:1.6;
+    border-left:3px solid var(--orange);
+    padding-left:16px;
   }
   .hero-tile{
     background:var(--charcoal);
     overflow:hidden;
-    box-shadow:0 24px 60px rgba(26,26,26,.14);
   }
   .hero-tile video{display:block;width:100%;height:auto}
 
   /* ---- Proof band ---- */
-  .proofband{background:var(--charcoal);color:var(--white);padding:52px 0 48px}
+  .proofband{background:var(--charcoal);color:var(--white);padding:var(--s6) 0}
   .proofband .today-label,.proofband .heritage-label{
     color:#9a9a9a;font-weight:600;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
   }
@@ -132,17 +161,25 @@
     margin:22px 0 6px;
   }
   .proofband .logowall img{
-    height:36px;width:auto;max-width:170px;object-fit:contain;
-    filter:grayscale(1) brightness(0) invert(.72);
-    opacity:.72;transition:opacity .2s ease;
+    height:34px;width:auto;max-width:170px;object-fit:contain;
+    filter:brightness(0) invert(.88);
+    opacity:1;transition:opacity .2s ease;
   }
-  /* script wordmarks read smaller than glyphs at equal height — give them more */
-  .proofband .logowall img[alt="Coca-Cola"]{height:48px}
-  .proofband .logowall img[alt="Disney"]{height:40px}
-  .proofband .logowall img:hover{opacity:.95}
+  /* Optical balance, not equal height. Solid compact marks (the Pepsi disc, the
+     Microsoft squares) carry far more visual mass than thin wide scripts, so each
+     is set by how heavy it reads rather than by a shared measurement. */
+  .proofband .logowall img[alt="Coca-Cola"]{height:50px}
+  .proofband .logowall img[alt="Disney"]{height:42px}
+  .proofband .logowall img[alt="PepsiCo"]{height:28px}
+  .proofband .logowall img[alt="Microsoft"]{height:26px}
+  .proofband .logowall img[alt="AT&T"]{height:30px}
+  .proofband .logowall img[alt="GM"]{height:32px}
+  .proofband .logowall img:hover{opacity:.7}
+  /* An annotation to the logos, not a peer of them. Bebas at 22px out-shouted
+     the very proof it was annotating. */
   .proofband .logowall .sb{
-    font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
-    color:#9a9a9a;
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+    letter-spacing:2.5px;text-transform:uppercase;color:#8a8a8a;
   }
   .proofband .band-note{
     color:#cfcfcf;
@@ -154,7 +191,7 @@
   .proofband .band-inner{max-width:56ch}
 
   /* ---- Sections ---- */
-  section{padding:104px 0}
+  section{padding:var(--s8) 0}
   .sec-head{margin-bottom:0}
   .main{grid-column:1/12}
   .main > .label{display:block;margin-bottom:20px}
@@ -166,17 +203,21 @@
   .lead{font-size:clamp(17px,1.6vw,20px);max-width:58ch;margin-top:26px;line-height:1.65}
 
   /* ---- Work ---- */
-  .work{padding-bottom:64px}
+  .work{padding-bottom:var(--s6)}
   .reel-outer{
-    margin-top:56px;
+    margin-top:var(--s5);
     overflow:hidden;
     width:100vw;position:relative;left:50%;transform:translateX(-50%);
+    /* Fade both edges so the marquee reads as intentional rather than clipped. */
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
   }
   .reel-track{display:flex;gap:16px;width:max-content;animation:reel-scroll 40s linear infinite}
   .reel-outer:hover .reel-track{animation-play-state:paused}
   @keyframes reel-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .tile{position:relative;background:var(--charcoal);overflow:hidden;height:340px;flex:none}
-  .tile video,.tile img{display:block;height:100%;width:auto}
+  /* Uniform 4:5 frames. Mixed aspect ratios at a shared height made the row ragged. */
+  .tile{position:relative;background:var(--charcoal);overflow:hidden;width:304px;height:380px;flex:none}
+  .tile video,.tile img{display:block;width:100%;height:100%;object-fit:cover}
 
   /* ---- Deliverables (spec sheet) ---- */
   .deliver-sec .main{grid-column:1/12}
@@ -194,6 +235,10 @@
     font-size:30px;color:var(--orange);letter-spacing:1px;
   }
   .deliver li b{font-weight:600}
+  .deliver-note{
+    font-size:clamp(16px,1.5vw,19px);color:var(--gray);font-weight:500;
+    margin-top:34px;max-width:56ch;line-height:1.6;
+  }
   .deliver-close{
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(26px,3vw,40px);
@@ -202,7 +247,7 @@
   }
 
   /* ---- The Standard (signature interstitial) ---- */
-  .standard-sec{background:var(--charcoal);color:var(--white);padding:140px 0}
+  .standard-sec{background:var(--charcoal);color:var(--white);padding:var(--s9) 0}
   .standard-sec .label{color:#9a9a9a}
   .standard-sec .kicker{
     font-size:15px;color:#9a9a9a;margin:26px 0 30px;letter-spacing:.5px;
@@ -264,11 +309,14 @@
     line-height:1.5;
   }
   /* ---- Mid-page CTA ---- */
-  .mid-cta{padding:72px 0}
-  .mid-cta .lead{max-width:52ch}
+  /* Was an orphaned paragraph floating between two bands. A hairline gives it a
+     top edge to sit against, so it reads as a deliberate interstitial. */
+  .mid-cta{padding:var(--s7) 0 var(--s3)}
+  .mid-cta .wrap{border-top:1px solid #e8e8e8;padding-top:var(--s5)}
+  .mid-cta .lead{max-width:46ch;font-size:clamp(19px,1.9vw,24px);line-height:1.5}
 
   /* ---- Booking ---- */
-  .booking{background:var(--charcoal);color:var(--white);padding:120px 0}
+  .booking{background:var(--charcoal);color:var(--white);padding:var(--s8) 0}
   .booking h2{color:var(--white)}
   .booking .label{color:#9a9a9a}
   .booking .lead{color:#cfcfcf}
@@ -299,15 +347,42 @@
     resize:vertical;
   }
   .field input::placeholder,.field textarea::placeholder{color:#5a5a5a}
+  /* Optional-field aside. Sentence case and un-tracked so it reads as a note from us
+     rather than more form furniture. Orange because it is a promise, same as .capacity. */
+  .field .opt{
+    display:block;text-transform:none;letter-spacing:0;font-size:12px;
+    font-weight:400;color:var(--orange);margin-top:5px;
+  }
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-bottom-color:var(--orange)}
-  .field select{cursor:pointer}
+  .field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{
+    outline:2px solid var(--orange);outline-offset:4px;
+  }
+  /* Native select chrome renders light-on-light against the charcoal ground.
+     Own the arrow instead. */
+  .field select{
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--orange) 50%),
+                     linear-gradient(135deg,var(--orange) 50%,transparent 50%);
+    background-position:calc(100% - 13px) center,calc(100% - 7px) center;
+    background-size:6px 6px,6px 6px;
+    background-repeat:no-repeat;
+    padding-right:32px;
+  }
   .field select option{background:var(--charcoal);color:var(--white)}
+  .capacity{
+    border-left:3px solid var(--orange);padding-left:16px;
+    margin:34px 0 8px;color:#cfcfcf;font-size:15px;line-height:1.6;
+  }
   form .cta{margin-top:14px;width:100%;text-align:center}
   .form-note{color:#8a8a8a;font-size:14px;margin-top:20px;line-height:1.6}
 
   /* ---- Footer ---- */
-  footer{background:#0f0f0f;color:#cfcfcf;padding:72px 0}
-  footer .flogo{height:110px;margin-bottom:28px}
+  footer{background:#0f0f0f;color:#cfcfcf;padding:var(--s7) 0}
+  /* Footer already names the brand in .fname, so the lockup contributes the mark
+     only — otherwise the name and tagline print twice, stacked. */
+  .lockup-footer{margin-bottom:20px}
+  .lockup-footer .lockup-type{display:none}
+  .lockup-footer .lockup-mark{height:88px}
   footer .fname{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white)}
   footer .fname span{color:var(--orange)}
   footer .boiler{max-width:62ch;font-size:15px;line-height:1.6;margin-top:16px;color:#9a9a9a}
@@ -320,8 +395,8 @@
     .hero-media{grid-column:1/13;margin-top:44px}
     .hero-tile{max-width:340px;margin:0 auto 0 0}
     .main{grid-column:1/13}
-    section{padding:72px 0}
-    .standard-sec{padding:96px 0}
+    section{padding:var(--s7) 0}
+    .standard-sec{padding:var(--s7) 0}
     .steps{grid-template-columns:1fr}
     .step{border-right:none;border-bottom:1px solid #e8e8e8;padding:32px 0}
     .step:last-child{border-bottom:none}
@@ -340,12 +415,46 @@
     .reel-track .tile:nth-child(n+5){display:none}
   }
 </style>
+
+<!-- ================= META PIXEL ================= -->
+<!-- VERIFY THE ID BELOW against Meta Events Manager before trusting any data.
+     It came from the Desktop draft, where it sat under a "REPLACE with your real
+     Pixel IDs" comment, so it may be scaffold rather than a HillDave pixel. -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+/* One entry per ad account that needs to see this traffic. Every listed pixel
+   fires the same events. Add a matching <noscript> img below for each ID. */
+var HD_PIXEL_IDS = [
+  '1238373368351388'
+];
+HD_PIXEL_IDS.forEach(function(id){ fbq('init', id); });
+fbq('track', 'PageView');
+</script>
+<noscript>
+<img height="1" width="1" style="display:none" alt=""
+     src="https://www.facebook.com/tr?id=1238373368351388&ev=PageView&noscript=1"/>
+</noscript>
+<!-- =============== END META PIXEL =============== -->
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <img class="logo" src="assets/logos/logo-black-on-white.jpg" alt="HillDave — Gold Standard">
+    <div class="lockup" role="img" aria-label="HillDave — Gold Standard">
+      <img class="lockup-mark" src="assets/logos/mark.png" alt="">
+      <span class="lockup-type">
+        <span class="lockup-name">HillDave</span>
+        <span class="lockup-tag">Gold Standard</span>
+      </span>
+    </div>
     <a class="header-cta" href="#book">Book a meeting</a>
   </div>
 </header>
@@ -361,7 +470,7 @@
       <p class="sub fx d3">Data. Analysis. Strategy. Creative. Social and media buys optimized across every platform. One system, one job: drive revenue, build the brand.</p>
       <div class="fx d4">
         <a href="#book" class="cta">Book a meeting &rarr;</a>
-        <span class="micro">Every meeting includes free brand insights and ad copy &mdash; built to beat your competitors. Yours.</span>
+        <span class="micro">Before we meet, we write your brand position from your site. Then we build the first ads from it. Yours either way.</span>
       </div>
     </div>
     <div class="hero-media fx d3">
@@ -420,7 +529,10 @@
       <h2 class="fx d1">One system. Fortune 500 discipline<span class="dot">.</span></h2>
       <p class="lead fx d1">The judgment that built iconic campaigns for the world&rsquo;s biggest brands. And now, you.</p>
       <p class="now-you fx d2">Starting at $1,500 a month<span class="dot">.</span></p>
-      <p class="price-note fx d3">Less than a freelancer. A whole agency&rsquo;s judgment.</p>
+      <!-- Says what the price buys, not what it beats. Never frame the work against a
+           cheaper alternative — that competes on price and re-opens the comparison the
+           rest of the page is built to escape. -->
+      <p class="price-note fx d3">Re-priced by technology. Not by a lower standard.</p>
     </div>
   </div>
 </section>
@@ -428,7 +540,7 @@
 <section class="mid-cta">
   <div class="wrap grid12">
     <div class="main">
-      <p class="lead fx" style="margin-top:0">Free brand insights and ad copy built to beat your competitors &mdash; walked through live when we meet. Yours to keep, hire us or not.</p>
+      <p class="lead fx" style="margin-top:0">Book a meeting. We write your brand position before we speak, and build the first ads from it. We walk you through both when we meet. Yours either way.</p>
       <a href="#book" class="cta fx d1" style="margin-top:28px;display:inline-block">Book a meeting &rarr;</a>
     </div>
   </div>
@@ -448,6 +560,7 @@
         <li class="fx"><span><b>Your creative and content</b> &mdash; produced on the HillDave Video Engine, published on schedule.</span></li>
         <li class="fx"><span><b>Your results, optimized</b> &mdash; fed back into the strategy.</span></li>
       </ul>
+      <p class="deliver-note fx">Step one is what you get free when we meet. The engagement is the other six &mdash; and the execution.</p>
       <p class="deliver-close fx">The full cycle that took an agency team the better part of a year ships in weeks. At a higher standard.</p>
     </div>
   </div>
@@ -457,11 +570,11 @@
   <div class="wrap grid12">
     <div class="booking-copy">
       <span class="label fx">Book a meeting</span>
-      <h2 class="fx d1" style="margin-top:26px">Leave with the insights. And the copy<span class="dot">.</span></h2>
+      <h2 class="fx d1" style="margin-top:26px">Leave with the position. And the ads<span class="dot">.</span></h2>
       <ol class="book-steps fx d2">
-        <li><span class="bs-num">1</span><span class="bs-txt">Book a meeting and name your top three competitors.</span></li>
-        <li><span class="bs-num">2</span><span class="bs-txt">Before we meet, we study them &mdash; the ads they run, where, and what&rsquo;s working &mdash; then write brand insights and ad copy built to beat them.</span></li>
-        <li><span class="bs-num">3</span><span class="bs-txt">In thirty minutes on Google Meet, we walk you through it all. Hire us or not, it&rsquo;s yours to keep.</span></li>
+        <li><span class="bs-num">1</span><span class="bs-txt">Before the meeting, we read your site and your competitors: the ads they run, where they run them, what performs.</span></li>
+        <li><span class="bs-num">2</span><span class="bs-txt">Then we write your brand position, and build the first ads from it.</span></li>
+        <li><span class="bs-num">3</span><span class="bs-txt">In thirty minutes on Google Meet, we walk you through the position, the strategy, and the ads. Hire us or not, the work is yours.</span></li>
       </ol>
     </div>
     <div class="booking-form fx d2">
@@ -478,13 +591,16 @@
           <label for="url">Website</label>
           <input id="url" name="website" type="text" inputmode="url" placeholder="yourbrand.com" required>
         </div>
+        <!-- The "what does your brand do / what is the benefit" essay field was removed. Asking
+             it contradicts the offer: we write the position from the site before we speak, and the
+             ads say "no questionnaire." Requiring an essay made that copy false. It is also the
+             highest-abandon element you can put in front of cold paid traffic. -->
         <div class="field">
-          <label for="benefit">What does your brand do? What is the benefit?</label>
-          <textarea id="benefit" name="what_does_your_brand_do__what_is_the_benefit_" placeholder="One or two sentences." rows="3" required></textarea>
-        </div>
-        <div class="field">
-          <label for="competitors">Your top three competitors</label>
-          <textarea id="competitors" name="your_top_three_competitors_" placeholder="Brand names or URLs. At least three." rows="3" required></textarea>
+          <label for="competitors">
+            Your top three competitors
+            <span class="opt">Optional &mdash; we&rsquo;ll find them anyway.</span>
+          </label>
+          <textarea id="competitors" name="your_top_three_competitors_" placeholder="Brand names or URLs." rows="2"></textarea>
         </div>
         <div class="field">
           <label for="email">Email</label>
@@ -494,15 +610,19 @@
           <label for="spend">Monthly ad spend</label>
           <select id="spend" name="monthly_ad_spend" required>
             <option value="" selected disabled>Select a range</option>
-            <option>Under $5,000</option>
-            <option>$5,000 &ndash; $15,000</option>
-            <option>$15,000 &ndash; $50,000</option>
-            <option>$50,000 &ndash; $150,000</option>
-            <option>$150,000+</option>
+            <option>Under $2,500</option>
+            <option>$2,500 &ndash; $10,000</option>
+            <option>$10,000 &ndash; $30,000</option>
+            <option>$30,000+</option>
           </select>
         </div>
+        <!-- No hardcoded date range here on purpose. A static range goes stale silently and
+             becomes the same class of bug as the placeholder it replaced; a computed one would
+             promise slots without knowing real calendar availability. The scheduler shows true
+             availability one click later, so let it be the source of truth. -->
+        <p class="capacity">We take twelve of these a month, because each one is real work. The earliest slot is three days out.</p>
         <button type="submit" class="cta">Book a meeting &rarr;</button>
-        <p class="form-note">Submitting takes you to slot selection. You will receive a Google Meet link by email. Your ad copy is prepared before your slot.</p>
+        <p class="form-note">Submitting takes you to slot selection. You will receive a Google Meet link by email. Your position and first ads are prepared before your slot.</p>
       </form>
     </div>
   </div>
@@ -510,7 +630,13 @@
 
 <footer>
   <div class="wrap">
-    <img class="flogo" src="assets/logos/logo-white-on-black.jpg" alt="HillDave — Gold Standard">
+    <div class="lockup lockup-dark lockup-footer" role="img" aria-label="HillDave — Gold Standard">
+      <img class="lockup-mark" src="assets/logos/mark-dark.png" alt="">
+      <span class="lockup-type">
+        <span class="lockup-name">HillDave</span>
+        <span class="lockup-tag">Gold Standard</span>
+      </span>
+    </div>
     <div class="fname">HILLDAVE LABS <span>&middot;</span> The Gold Standard</div>
     <p class="boiler">Thirty years of Fortune 500 strategy and production, engineered into one system that turns a brand&rsquo;s data into strategy, ads, and results. Clear, transparent pricing.</p>
   </div>
@@ -537,15 +663,21 @@
 <script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/50739084.js"></script>
 
 <script>
-/* Intake form: save all 7 fields to HubSpot (Forms API), then redirect to the
+/* Intake form: save the 6 fields to HubSpot (Forms API), then redirect to the
    Meetings scheduler with name/email/brand prefilled. Redirects either way so
-   the user always reaches slot selection. */
+   the user always reaches slot selection.
+
+   Attribution note: this is a two-step flow (form here -> slot selection on
+   meetings.hubspot.com). That hand-off is where UTMs get lost, because the
+   scheduler is a different host and inherits nothing from this page's URL.
+   ATTRIB below forwards them explicitly so the booking record can be traced. */
 (function(){
   var form = document.getElementById('intake-form');
   if(!form) return;
   var ENDPOINT  = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
   var SCHEDULER = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
-  var FIELDS = ['firstname','company','website','what_does_your_brand_do__what_is_the_benefit_','your_top_three_competitors_','email','monthly_ad_spend'];
+  var FIELDS = ['firstname','company','website','your_top_three_competitors_','email','monthly_ad_spend'];
+  var ATTRIB = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid','li_fat_id','ttclid','msclkid'];
 
   function cookie(name){
     var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -568,7 +700,20 @@
     if(sp !== -1) params.set('lastName', name.slice(sp + 1));
     if(email) params.set('email', email);
     if(brand) params.set('company', brand);
+
+    // Carry ad-click attribution across the host boundary to the scheduler, so the
+    // booking itself is attributable and not just this page's form submission.
+    var landed = new URLSearchParams(window.location.search);
+    ATTRIB.forEach(function(k){
+      var v = landed.get(k);
+      if(v) params.set(k, v);
+    });
     var schedulerUrl = SCHEDULER + '?' + params.toString();
+
+    /* Conversion signal for ad optimization. Guarded and wrapped: if a blocker or
+       a Meta outage breaks fbq, the booking must still go through — a tracking
+       failure can never be allowed to strand the user before the scheduler. */
+    try { if (typeof fbq === 'function') fbq('track', 'Lead'); } catch(e){}
 
     var done = false;
     function go(){ if(!done){ done = true; window.location.href = schedulerUrl; } }
