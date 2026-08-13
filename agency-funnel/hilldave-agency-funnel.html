@@ -418,8 +418,8 @@
 
 <!-- ================= META PIXEL ================= -->
 <!-- VERIFY THE ID BELOW against Meta Events Manager before trusting any data.
-     It came from the Desktop draft, where it sat under a "REPLACE with your real
-     Pixel IDs" comment, so it may be scaffold rather than a HillDave pixel. -->
+     "HIllDave Pixel" in ad account 68604241 - the active pixel carrying real
+     event history, confirmed in Events Manager. -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -433,14 +433,14 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 /* One entry per ad account that needs to see this traffic. Every listed pixel
    fires the same events. Add a matching <noscript> img below for each ID. */
 var HD_PIXEL_IDS = [
-  '1238373368351388'
+  '1463304112253384'
 ];
 HD_PIXEL_IDS.forEach(function(id){ fbq('init', id); });
 fbq('track', 'PageView');
 </script>
 <noscript>
 <img height="1" width="1" style="display:none" alt=""
-     src="https://www.facebook.com/tr?id=1238373368351388&ev=PageView&noscript=1"/>
+     src="https://www.facebook.com/tr?id=1463304112253384&ev=PageView&noscript=1"/>
 </noscript>
 <!-- =============== END META PIXEL =============== -->
 </head>
@@ -738,6 +738,161 @@ fbq('track', 'PageView');
   });
 })();
 </script>
+
+<!-- =========================================================================
+     HILLDAVE PIXEL PATCH — ViewContent + InitiateCheckout
+     Written Aug 13, 2026 for position.hilldave.com
+
+     WHAT THIS DOES
+       Adds the two missing Meta pixel events to the landing page:
+         ViewContent      - fires once, when the visitor actually sees the booking block
+         InitiateCheckout - fires once, when the intake form is successfully submitted
+
+     WHAT THIS DOES NOT DO
+       It does not touch the existing form handler, the Lead event, the UTM
+       capture, the HubSpot tracking cookie (hutk), or the redirect to the
+       scheduler. Nothing that currently works is modified. This block is
+       purely additive and self-contained.
+
+     WHERE IT GOES
+       Immediately before the closing </body> tag, AFTER the existing
+       tracking script that initialises the pixel (1463304112253384).
+       It must come after fbq('init', ...) or it will silently do nothing.
+
+     STILL MISSING AFTER THIS PATCH
+       Schedule (the actual booking conversion) cannot fire from this page,
+       because the booking is confirmed on meetings.hubspot.com, a different
+       domain. That needs either a post-booking redirect back to this site,
+       or a HubSpot workflow -> Meta Conversions API. See notes at bottom.
+     ========================================================================= -->
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------------
+  // Safe wrapper. If the pixel didn't load, or Meta's script errors,
+  // tracking must never break the page or block the form.
+  // ---------------------------------------------------------------------
+  function px(eventName, eventId) {
+    if (typeof window.fbq !== 'function') return;
+    try {
+      window.fbq('track', eventName, {}, { eventID: eventId });
+    } catch (e) {
+      /* swallow - a tracking failure must not affect the visitor */
+    }
+  }
+
+  // Unique per-event ID. Not needed today, but it means that when the
+  // Schedule event is later sent server-side via the Conversions API,
+  // Meta can deduplicate browser and server events instead of
+  // double-counting them.
+  function eid(prefix) {
+    return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  }
+
+  // ---------------------------------------------------------------------
+  // 1. ViewContent
+  //    Fires the first time the booking block (#book) is meaningfully in
+  //    view. This is the "they saw the offer" signal - the step between
+  //    landing on the page and starting the form.
+  // ---------------------------------------------------------------------
+  var viewContentFired = false;
+
+  function fireViewContent() {
+    if (viewContentFired) return;
+    viewContentFired = true;
+    px('ViewContent', eid('vc'));
+  }
+
+  var bookEl = document.getElementById('book');
+
+  if (bookEl && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          fireViewContent();
+          observer.disconnect();
+          return;
+        }
+      }
+    }, { threshold: 0.25 });
+
+    observer.observe(bookEl);
+
+  } else if (bookEl) {
+    // Fallback for browsers without IntersectionObserver.
+    var onScroll = function () {
+      if (bookEl.getBoundingClientRect().top < window.innerHeight * 0.75) {
+        fireViewContent();
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // in case the block is already in view on load
+  }
+
+  // ---------------------------------------------------------------------
+  // 2. InitiateCheckout
+  //    Fires when the intake form is submitted with valid input - i.e.
+  //    the visitor is being handed off to the HubSpot scheduler.
+  //
+  //    Registered in the CAPTURE phase (third argument = true) so it runs
+  //    BEFORE the existing submit handler calls preventDefault(). That
+  //    guarantees the pixel request is issued while the page is still
+  //    alive, ahead of the redirect to meetings.hubspot.com.
+  //
+  //    Invalid submissions are deliberately not counted, so the number
+  //    matches real handoffs rather than failed form attempts.
+  // ---------------------------------------------------------------------
+  var checkoutFired = false;
+  var form = document.querySelector('.booking-form form');
+
+  if (form) {
+    form.addEventListener('submit', function () {
+      if (checkoutFired) return;
+      if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
+      checkoutFired = true;
+      px('InitiateCheckout', eid('ic'));
+    }, true);
+  }
+})();
+</script>
+
+<!-- =========================================================================
+     NOTES ON THE REMAINING EVENT: Schedule
+
+     The booking is confirmed on meetings.hubspot.com, so this page is
+     already unloaded by the time a booking succeeds. There are two ways
+     to close that gap, in order of effort:
+
+     OPTION A - post-booking redirect (fast, do this if the setting exists)
+       In HubSpot: Meetings -> "HillDave First Meet" -> Edit -> Configuration
+       (look for a post-booking / confirmation option). If a custom redirect
+       URL is available, point it at a thank-you page on position.hilldave.com,
+       e.g. https://position.hilldave.com/booked
+       Put the pixel base code on that page plus:
+
+           fbq('track', 'Schedule');
+
+       Caveat: this only fires if the visitor's browser actually follows the
+       redirect. Someone who closes the tab on the confirmation screen is
+       missed. Good enough for optimisation, slightly undercounts.
+
+     OPTION B - HubSpot workflow -> Meta Conversions API (accurate, slower)
+       Trigger: meeting booked on the "HillDave First Meet" link.
+       Action:  webhook -> a small endpoint that sends a server-side
+                "Schedule" event to the Meta Conversions API for pixel
+                1463304112253384, passing the hashed email and the fbp /
+                fbc cookies captured at form submit.
+       This counts every booking regardless of browser behaviour, and is
+       immune to ad blockers and iOS tracking restrictions.
+
+     Until one of these is in place, booked calls can still be attributed by
+     creative - the UTM parameters (including utm_content, which is the
+     HillDave-cut vs no-character-cut variable) are already carried through
+     to the HubSpot scheduler and land on the contact record. That analysis
+     is manual, in HubSpot, rather than automatic in Ads Manager.
+     ========================================================================= -->
 
 </body>
 </html>

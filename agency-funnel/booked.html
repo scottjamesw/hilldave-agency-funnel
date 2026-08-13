@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booked — HillDave</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Your meeting with HillDave is confirmed.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- ===================== META PIXEL ===================== -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '1463304112253384');   /* HillDave Pixel — same ID as the landing page */
+fbq('track', 'PageView');
+
+/* THE CONVERSION EVENT.
+   This page is only ever reached by completing a booking, so Schedule
+   fires unconditionally on load. Guarded so a refresh does not
+   double-count within the same session. */
+(function () {
+  try {
+    if (sessionStorage.getItem('hd_schedule_fired') === '1') return;
+    sessionStorage.setItem('hd_schedule_fired', '1');
+  } catch (e) { /* private mode — fire anyway rather than lose the event */ }
+
+  fbq('track', 'Schedule', {}, {
+    eventID: 'sched_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10)
+  });
+})();
+</script>
+<noscript>
+<img height="1" width="1" style="display:none"
+     src="https://www.facebook.com/tr?id=1463304112253384&ev=Schedule&noscript=1"/>
+</noscript>
+<!-- =================== END META PIXEL =================== -->
+
+<style>
+  :root{
+    --orange:#FF6B35;
+    --charcoal:#1A1A1A;
+    --gray:#6B6B6B;
+    --light:#F5F5F5;
+    --white:#FFFFFF;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  body{
+    background:var(--white);
+    color:var(--charcoal);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 40px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    padding:32px 0;
+    border-bottom:1px solid #E8E8E8;
+  }
+  .logo{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:30px;
+    letter-spacing:0.5px;
+    line-height:1;
+  }
+  .logo span{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:9px;
+    font-weight:500;
+    letter-spacing:3px;
+    color:var(--gray);
+    margin-top:4px;
+  }
+
+  /* ---------- main ---------- */
+  main{
+    padding:96px 0 120px;
+  }
+
+  .eyebrow{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:3px;
+    color:var(--gray);
+    text-transform:uppercase;
+    margin-bottom:24px;
+  }
+
+  h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:72px;
+    line-height:0.92;
+    letter-spacing:0.5px;
+    max-width:14ch;
+    margin-bottom:28px;
+  }
+  h1 .dot{color:var(--orange);}
+
+  .lede{
+    font-size:17px;
+    color:var(--charcoal);
+    max-width:52ch;
+    margin-bottom:56px;
+  }
+
+  /* ---------- what happens next ---------- */
+  .next{
+    max-width:640px;
+    border-left:4px solid var(--orange);
+    padding-left:28px;
+  }
+  .next h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:26px;
+    letter-spacing:0.5px;
+    margin-bottom:20px;
+  }
+  .step{
+    display:flex;
+    gap:20px;
+    padding:16px 0;
+    border-bottom:1px solid #E8E8E8;
+  }
+  .step:last-child{border-bottom:none;}
+  .step .n{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:20px;
+    color:var(--orange);
+    line-height:1.3;
+    min-width:16px;
+  }
+  .step p{color:var(--charcoal);}
+
+  .note{
+    margin-top:48px;
+    padding:20px 24px;
+    background:var(--light);
+    max-width:640px;
+    font-size:13px;
+    color:var(--gray);
+  }
+  .note strong{color:var(--charcoal);font-weight:600;}
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid #E8E8E8;
+    padding:28px 0;
+    font-size:11px;
+    color:var(--gray);
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:720px){
+    .wrap{padding:0 24px;}
+    main{padding:56px 0 72px;}
+    h1{font-size:48px;}
+    .lede{font-size:15px;margin-bottom:40px;}
+  }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">
+      HILLDAVE
+      <span>GOLD STANDARD</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <p class="eyebrow">Booking Confirmed</p>
+
+    <h1>You're on the calendar<span class="dot">.</span></h1>
+
+    <p class="lede">
+      The invitation is in your inbox. Before we meet, we go to work — you'll
+      leave the call with the position and the ads whether you hire us or not.
+    </p>
+
+    <div class="next">
+      <h2>What happens before the call</h2>
+
+      <div class="step">
+        <span class="n">1</span>
+        <p>We read your site and your competitors: the ads they run, where they run them, what performs.</p>
+      </div>
+
+      <div class="step">
+        <span class="n">2</span>
+        <p>We write your brand position, and build the first ads from it.</p>
+      </div>
+
+      <div class="step">
+        <span class="n">3</span>
+        <p>In thirty minutes on Google Meet, we walk you through the position, the strategy, and the ads.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Nothing else is needed from you.</strong> If something comes up,
+      the reschedule link is in your confirmation email.
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    HillDave — 30 Years of Fortune 500. Engineered into AI. The Gold Standard.
+  </div>
+</footer>
+
+</body>
+</html>
