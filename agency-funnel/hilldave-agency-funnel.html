@@ -443,6 +443,58 @@ fbq('track', 'PageView');
      src="https://www.facebook.com/tr?id=1463304112253384&ev=PageView&noscript=1"/>
 </noscript>
 <!-- =============== END META PIXEL =============== -->
+
+<!-- ================= AD ATTRIBUTION CAPTURE =================
+     Reads the ad-click parameters ONCE, on first load, and holds them for the
+     rest of the session.
+
+     Why on load and not at submit time: by the time the visitor submits, the
+     address bar is not guaranteed to still carry the query string. They may have
+     jumped to #book, navigated away and come back, or arrived through a link
+     that dropped it. A value read late is a value that can be missing, and the
+     failure is silent — the form still submits, just with nothing attached.
+
+     First non-empty value wins, so a later untagged pageview in the same session
+     can never overwrite the tagged one that actually brought the visitor here.
+     ========================================================== -->
+<script>
+(function(){
+  /* The five UTMs have matching HubSpot contact properties. The click IDs do
+     not, and are carried to the scheduler only. */
+  var KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
+              'gclid','fbclid','li_fat_id','ttclid','msclkid'];
+  var STORE = 'hd_attrib';
+  var LANDING = 'hd_landing_url';
+
+  var saved = {};
+  try { saved = JSON.parse(sessionStorage.getItem(STORE)) || {}; } catch(e){ saved = {}; }
+
+  var qs = new URLSearchParams(window.location.search);
+  var dirty = false;
+  KEYS.forEach(function(k){
+    var v = qs.get(k);
+    if (v && !saved[k]) { saved[k] = v; dirty = true; }
+  });
+  if (dirty) { try { sessionStorage.setItem(STORE, JSON.stringify(saved)); } catch(e){} }
+
+  /* The URL the visitor actually landed on, query string intact. Sent as the
+     form's pageUri so HubSpot's own source attribution sees the tagged URL
+     rather than a bare one — a submit-time window.location.href had already
+     lost its query string and was recording contacts as DIRECT_TRAFFIC. */
+  var landing = null;
+  try { landing = sessionStorage.getItem(LANDING); } catch(e){}
+  if (!landing) {
+    landing = window.location.href;
+    try { sessionStorage.setItem(LANDING, landing); } catch(e){}
+  }
+
+  /* In-memory fallback: Safari private mode throws on sessionStorage writes, so
+     the values must still be reachable within this pageview. */
+  window.HD_ATTRIB = saved;
+  window.HD_LANDING_URL = landing;
+})();
+</script>
+<!-- =============== END AD ATTRIBUTION CAPTURE =============== -->
 </head>
 <body>
 
@@ -678,6 +730,12 @@ fbq('track', 'PageView');
   var SCHEDULER = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
   var FIELDS = ['firstname','company','website','your_top_three_competitors_','email','monthly_ad_spend'];
   var ATTRIB = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid','li_fat_id','ttclid','msclkid'];
+  /* Sent to HubSpot as contact properties. These five have matching properties
+     in portal 50739084 AND must exist as fields on the form itself -- a property
+     alone is not enough. The Forms API returns 200 and silently DISCARDS any
+     field the form definition does not declare, so a missing form field looks
+     exactly like success. Verified by probe on 2026-08-13. */
+  var UTM_FIELDS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
 
   function cookie(name){
     var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
@@ -703,9 +761,13 @@ fbq('track', 'PageView');
 
     // Carry ad-click attribution across the host boundary to the scheduler, so the
     // booking itself is attributable and not just this page's form submission.
+    /* Read from the session-stored copy captured on load, not from the current
+       URL, which may no longer carry the query string. Falls back to the live
+       URL if storage was unavailable. */
+    var attrib = window.HD_ATTRIB || {};
     var landed = new URLSearchParams(window.location.search);
     ATTRIB.forEach(function(k){
-      var v = landed.get(k);
+      var v = attrib[k] || landed.get(k);
       if(v) params.set(k, v);
     });
     var schedulerUrl = SCHEDULER + '?' + params.toString();
@@ -719,12 +781,19 @@ fbq('track', 'PageView');
     function go(){ if(!done){ done = true; window.location.href = schedulerUrl; } }
 
     // Save all 7 fields to HubSpot
+    /* Only the UTMs that actually have a value are sent. Submitting empty ones
+       would risk blanking first-touch attribution on a repeat submitter. */
     var payload = {
       fields: FIELDS.map(function(n){
         var el = form.elements[n];
         return { objectTypeId: '0-1', name: n, value: el ? el.value.trim() : '' };
-      }),
-      context: { pageUri: window.location.href, pageName: document.title }
+      }).concat(UTM_FIELDS.filter(function(n){ return attrib[n]; }).map(function(n){
+        return { objectTypeId: '0-1', name: n, value: attrib[n] };
+      })),
+      context: {
+        pageUri: window.HD_LANDING_URL || window.location.href,
+        pageName: document.title
+      }
     };
     var hutk = cookie('hubspotutk');
     if(hutk){ payload.context.hutk = hutk; }
