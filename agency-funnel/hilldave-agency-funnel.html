@@ -163,6 +163,26 @@
   .lead{font-size:clamp(17px,1.6vw,20px);max-width:58ch;margin-top:26px;line-height:1.65}
   .lead + .lead{margin-top:20px}
 
+  /* ---- Work marquee. Lifted from the previous brand page unchanged, except that
+         its var(--s5)/var(--s6) spacing tokens are written out as 48px/64px: this
+         page's :root does not define that scale, and the vars would have resolved
+         to nothing and collapsed the reel. ---- */
+  .work{padding-bottom:64px}
+  .reel-outer{
+    margin-top:48px;
+    overflow:hidden;
+    width:100vw;position:relative;left:50%;transform:translateX(-50%);
+    /* Fade both edges so the marquee reads as intentional rather than clipped. */
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
+  }
+  .reel-track{display:flex;gap:16px;width:max-content;animation:reel-scroll 40s linear infinite}
+  .reel-outer:hover .reel-track{animation-play-state:paused}
+  @keyframes reel-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  /* Uniform 4:5 frames. Mixed aspect ratios at a shared height made the row ragged. */
+  .tile{position:relative;background:var(--charcoal);overflow:hidden;width:304px;height:380px;flex:none}
+  .tile video,.tile img{display:block;width:100%;height:100%;object-fit:cover}
+
   /* ---- Offer stack (spec sheet) ---- */
   .deliver{list-style:none;margin-top:48px;counter-reset:dl}
   .deliver li{
@@ -304,11 +324,18 @@
     .step:last-child{border-bottom:none}
     .booking-copy,.booking-form{grid-column:1/13}
     .booking-form{margin-top:44px}
+    .tile{height:230px}
   }
   @media(prefers-reduced-motion:reduce){
     *{transition:none!important}
     html{scroll-behavior:auto}
     .js-fx .fx{opacity:1;transform:none}
+    /* Marquee becomes a static, manually scrollable row. Hiding the duplicate half
+       matters here: the second set exists only to make the animation loop, so with
+       the animation off it is eight tiles of repeat. */
+    .reel-track{animation:none;width:auto}
+    .reel-outer{overflow-x:auto}
+    .reel-track .tile:nth-child(n+5){display:none}
   }
 </style>
 
@@ -406,6 +433,41 @@ fbq('track', 'PageView');
     <p class="band-note fx d4">The platform runs this agency. Client work ships through it every day.</p>
   </div>
 </div>
+
+<!-- ============================================================
+     2b. THE WORK. Marquee lifted from the previous brand page.
+     ============================================================ -->
+<section class="work">
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">The work</span></div>
+    <div class="main">
+      <h2 class="fx">The ads are the last step<span class="dot">.</span></h2>
+      <p class="lead fx d1">Brand position. Data. Analytics. Strategy. Copy. Content production. Optimization. Then, this.</p>
+    </div>
+  </div>
+  <!-- WORK MARQUEE: tiles auto-scroll and loop seamlessly. The track is duplicated once
+       (required for the loop) — when swapping in videos, make the SAME swap in both copies.
+
+       Sources are in data-src, NOT src, and are attached by JS when the reel scrolls
+       into view. With eight plain autoplay <video> tags this section pulled 30.5 MB on
+       every pageview — the four files are ~15 MB and each was fetched twice, because
+       the duplicate track requests them concurrently and neither request can serve the
+       other from cache. On cellular that is the page not loading. Posters are 20-52 KB
+       and carry the section on their own, which is also the no-JS fallback.
+       If you add a tile: poster + data-src, never src. -->
+  <div class="reel-outer" aria-label="A reel of recent work">
+    <div class="reel-track">
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
+    </div>
+  </div>
+</section>
 
 <!-- ============================================================
      3. THE PROBLEM. Pain hook and cause, from the ads.
