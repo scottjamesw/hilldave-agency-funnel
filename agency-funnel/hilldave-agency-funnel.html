@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Motion gate. The reveal animation's hidden state is scoped to .js-fx, so it only
-     exists if this line ran. No JS (or an in-app webview that blocks it) means the
-     page renders as plain visible text instead of blank white. Must stay in <head>,
-     before the stylesheet, so there is no flash of hidden content. -->
-<script>document.documentElement.className+=' js-fx';</script>
-<title>HillDave Agency — Generation Is Everywhere. Judgment Is Not.</title>
-<meta name="description" content="Before we meet, we write your brand position from your site and build the first ads from it. Yours either way. Thirty years of Fortune 500 production.">
+<title>Your Brand Position, Written Free Before We Meet · HillDave Labs</title>
+<meta name="description" content="We write your brand position from your website and build your first ads from it. Finished before you arrive. Yours either way. Thirty years of Fortune 500 strategy and production.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- RENDER-BUG GUARD. Sets the js-fx flag BEFORE first paint so the hidden
+     state below only ever applies when JS is confirmed running. If this script
+     fails, every .fx block stays visible. Do not remove. -->
+<script>document.documentElement.classList.add('js-fx');</script>
+
 <style>
   :root{
     --orange:#FF6B35;
@@ -21,13 +22,6 @@
     --light:#F5F5F5;
     --white:#FFFFFF;
     --maxw:1240px;
-    /* Vertical rhythm: one 8px-based scale, so band spacing is a decision and not a guess. */
-    --s3:24px;
-    --s5:48px;
-    --s6:64px;
-    --s7:88px;
-    --s8:120px;
-    --s9:152px;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -43,8 +37,6 @@
   .grid12{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
   h1,h2,h3{font-family:'Bebas Neue',sans-serif;text-transform:uppercase;font-weight:400;letter-spacing:.5px}
   .dot{color:var(--orange)}
-  .nobr{white-space:nowrap;display:inline-block}
-  h1 .dot,h2 .dot{margin-left:-.02em}
 
   .label{
     font-size:12px;
@@ -53,78 +45,52 @@
     text-transform:uppercase;
     color:var(--gray);
   }
-  /* label lead-in removed */
 
-  /* ---- Motion system ----
-     The hidden state is deliberately scoped to .js-fx (set by the head script).
-     Unscoped, a single JS failure leaves the whole page at opacity:0 — which is
-     what shipped, and what mobile ad traffic saw. Specificity note: .js-fx .fx is
-     (0,2,0), so anything meant to override it must match that or later — see the
-     reduced-motion block. */
+  /* ---- Motion system. FIXED: hidden state is scoped to .js-fx so content is
+         never trapped invisible if JS or the observer fails. ---- */
   .js-fx .fx{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
   .fx.in{opacity:1;transform:none}
-  /* Anything already on screen at load paints immediately — no fade, no stagger.
-     A .7s fade plus a .32s delay meant paid traffic waited ~1s to read the offer,
-     and the headline is the LCP element. The cascade still runs on scroll, which is
-     where it was always the point. Needs (0,3,0) to beat the .fx.dN delay rules. */
-  .js-fx .fx.in-now{transition:none;transition-delay:0s}
   .fx.d1{transition-delay:.08s}.fx.d2{transition-delay:.16s}.fx.d3{transition-delay:.24s}.fx.d4{transition-delay:.32s}
 
   /* ---- Header ---- */
   header{padding:22px 0}
   header .wrap{display:flex;align-items:center;justify-content:space-between}
-  /* Lockup: portrait mark + live type. One asset, two treatments —
-     multiply drops the white on light grounds, invert+screen drops the black on dark. */
   .lockup{display:flex;align-items:center;gap:14px}
-  .lockup-mark{height:62px;width:auto;display:block;mix-blend-mode:multiply}
+  .lockup-mark{height:76px;width:auto;display:block;mix-blend-mode:multiply}
   .lockup-type{display:flex;flex-direction:column;line-height:1}
   .lockup-name{
     font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1.5px;
     text-transform:uppercase;color:var(--charcoal);
   }
-  .lockup-tag{
-    font-size:10px;font-weight:600;letter-spacing:3.5px;text-transform:uppercase;
-    color:var(--gray);margin-top:5px;
-  }
-  /* Dark ground gets the purpose-made white-on-black art. Inverting the light
-     asset instead turned the stipple to mush. */
-  .lockup-dark .lockup-mark{mix-blend-mode:screen}
-  .lockup-dark .lockup-name{color:var(--white)}
-  .lockup-dark .lockup-tag{color:var(--orange)}
   .header-cta{
     font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
     color:var(--charcoal);text-decoration:none;border-bottom:2px solid var(--orange);
     padding-bottom:3px;
   }
   .header-cta:hover{color:var(--orange)}
-  .header-cta:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
 
-  /* ---- Hero ----
-     Hero vertical metrics are fold-driven, not rhythm-driven: at var(--s7) with the
-     old 148px headline the CTA landed at y=976 against an 865px fold, i.e. the offer
-     and the button were both off screen on arrival at every laptop width. 56px is on
-     the 8px scale but is set as a measured value on purpose — it is answering "does
-     the CTA clear the fold at 1280x800", which the rhythm scale cannot know. */
-  .hero{padding:56px 0;position:relative}
+  /* ---- Hero. Type scaled down from the brand page so the CTA clears the
+         fold at 390px, 500px and 1440px. ---- */
+  .hero{padding:56px 0 64px;position:relative}
   .hero .grid12{align-items:start}
-  .hero-copy{grid-column:1/9;position:relative;z-index:2}
-  .hero-media{grid-column:9/13;position:relative;z-index:3}
+  .hero-copy{grid-column:1/8;position:relative;z-index:2}
+  .hero-media{grid-column:8/13;position:relative;z-index:3}
   .hero .label{margin-bottom:22px;display:block}
   .hero h1{
-    /* Ceiling lowered 148 -> 104. max-width:12ch holds the headline at four lines,
-       so the ceiling is what sets the block's height: 4 lines x 148px x .92 = 545px
-       of headline alone pushed everything below it past the fold. Do not raise the
-       ceiling without re-measuring the CTA against a 800px-tall viewport. */
-    font-size:clamp(48px,7.4vw,104px);
-    line-height:.92;
-    max-width:12ch;
+    font-size:clamp(42px,5.6vw,84px);
+    line-height:.94;
+    max-width:17ch;
   }
+  /* Direct children only. Without the > the nested .dot span becomes a block
+     and the orange period orphans onto its own line at narrow widths. */
   .hero h1 > span{display:block}
+  .hero h1 .dot{display:inline}
   .hero .sub{
-    font-size:clamp(17px,1.6vw,20px);
-    max-width:52ch;
-    margin:28px 0 34px;
-    line-height:1.6;
+    font-size:clamp(17px,1.5vw,21px);
+    max-width:46ch;
+    margin:24px 0 30px;
+    line-height:1.55;
+    font-weight:500;
   }
   .cta{
     display:inline-block;
@@ -142,27 +108,23 @@
   }
   .cta:hover{background:#e55a28;transform:translateY(-2px)}
   .cta:focus-visible{outline:3px solid var(--charcoal);outline-offset:3px}
-  /* The offer. Orange left rule marks it as a promise — same device as .capacity,
-     so the two places we make a commitment look like each other. */
   .micro{
     display:block;
-    color:var(--charcoal);
-    font-size:16px;
-    font-weight:500;
-    margin-top:28px;
+    color:var(--gray);
+    font-size:14px;
+    margin-top:16px;
     max-width:46ch;
     line-height:1.6;
-    border-left:3px solid var(--orange);
-    padding-left:16px;
   }
   .hero-tile{
     background:var(--charcoal);
     overflow:hidden;
+    box-shadow:0 24px 60px rgba(26,26,26,.14);
   }
   .hero-tile video{display:block;width:100%;height:auto}
 
   /* ---- Proof band ---- */
-  .proofband{background:var(--charcoal);color:var(--white);padding:var(--s6) 0}
+  .proofband{background:var(--charcoal);color:var(--white);padding:52px 0 48px}
   .proofband .today-label,.proofband .heritage-label{
     color:#9a9a9a;font-weight:600;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
   }
@@ -180,31 +142,6 @@
     margin-top:12px;
   }
   .proofband .heritage span{color:var(--orange)}
-  .proofband .logowall{
-    display:flex;flex-wrap:wrap;align-items:center;gap:26px 40px;
-    margin:22px 0 6px;
-  }
-  .proofband .logowall img{
-    height:34px;width:auto;max-width:170px;object-fit:contain;
-    filter:brightness(0) invert(.88);
-    opacity:1;transition:opacity .2s ease;
-  }
-  /* Optical balance, not equal height. Solid compact marks (the Pepsi disc, the
-     Microsoft squares) carry far more visual mass than thin wide scripts, so each
-     is set by how heavy it reads rather than by a shared measurement. */
-  .proofband .logowall img[alt="Coca-Cola"]{height:50px}
-  .proofband .logowall img[alt="Disney"]{height:42px}
-  .proofband .logowall img[alt="PepsiCo"]{height:28px}
-  .proofband .logowall img[alt="Microsoft"]{height:26px}
-  .proofband .logowall img[alt="AT&T"]{height:30px}
-  .proofband .logowall img[alt="GM"]{height:32px}
-  .proofband .logowall img:hover{opacity:.7}
-  /* An annotation to the logos, not a peer of them. Bebas at 22px out-shouted
-     the very proof it was annotating. */
-  .proofband .logowall .sb{
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
-    letter-spacing:2.5px;text-transform:uppercase;color:#8a8a8a;
-  }
   .proofband .band-note{
     color:#cfcfcf;
     font-size:15px;
@@ -212,39 +149,27 @@
     max-width:52ch;
     line-height:1.6;
   }
-  .proofband .band-inner{max-width:56ch}
+  .proofband .band-figure{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(19px,2.1vw,26px);
+    letter-spacing:1px;color:var(--white);
+    margin-top:18px;
+  }
 
   /* ---- Sections ---- */
-  section{padding:var(--s8) 0}
-  .sec-head{margin-bottom:0}
-  .main{grid-column:1/12}
-  .main > .label{display:block;margin-bottom:20px}
+  section{padding:104px 0}
+  .rail{grid-column:1/4}
+  .rail .label{display:block;position:sticky;top:40px}
+  .main{grid-column:4/13}
   h2{
     font-size:clamp(40px,5.2vw,72px);
     line-height:.96;
     max-width:18ch;
   }
   .lead{font-size:clamp(17px,1.6vw,20px);max-width:58ch;margin-top:26px;line-height:1.65}
+  .lead + .lead{margin-top:20px}
 
-  /* ---- Work ---- */
-  .work{padding-bottom:var(--s6)}
-  .reel-outer{
-    margin-top:var(--s5);
-    overflow:hidden;
-    width:100vw;position:relative;left:50%;transform:translateX(-50%);
-    /* Fade both edges so the marquee reads as intentional rather than clipped. */
-    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,#000 7%,#000 93%,transparent 100%);
-  }
-  .reel-track{display:flex;gap:16px;width:max-content;animation:reel-scroll 40s linear infinite}
-  .reel-outer:hover .reel-track{animation-play-state:paused}
-  @keyframes reel-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  /* Uniform 4:5 frames. Mixed aspect ratios at a shared height made the row ragged. */
-  .tile{position:relative;background:var(--charcoal);overflow:hidden;width:304px;height:380px;flex:none}
-  .tile video,.tile img{display:block;width:100%;height:100%;object-fit:cover}
-
-  /* ---- Deliverables (spec sheet) ---- */
-  .deliver-sec .main{grid-column:1/12}
+  /* ---- Offer stack (spec sheet) ---- */
   .deliver{list-style:none;margin-top:48px;counter-reset:dl}
   .deliver li{
     display:grid;grid-template-columns:80px 1fr;gap:24px;align-items:baseline;
@@ -259,10 +184,6 @@
     font-size:30px;color:var(--orange);letter-spacing:1px;
   }
   .deliver li b{font-weight:600}
-  .deliver-note{
-    font-size:clamp(16px,1.5vw,19px);color:var(--gray);font-weight:500;
-    margin-top:34px;max-width:56ch;line-height:1.6;
-  }
   .deliver-close{
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(26px,3vw,40px);
@@ -270,17 +191,14 @@
     margin-top:48px;max-width:28ch;
   }
 
-  /* ---- The Standard (signature interstitial) ---- */
-  .standard-sec{background:var(--charcoal);color:var(--white);padding:var(--s9) 0}
+  /* ---- The Standard (dark interstitial) ---- */
+  .standard-sec{background:var(--charcoal);color:var(--white);padding:140px 0}
   .standard-sec .label{color:#9a9a9a}
-  .standard-sec .kicker{
-    font-size:15px;color:#9a9a9a;margin:26px 0 30px;letter-spacing:.5px;
-  }
   .standard-sec .big{
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(44px,6.5vw,104px);
     line-height:.95;letter-spacing:.5px;color:var(--white);
-    max-width:16ch;text-transform:uppercase;
+    max-width:16ch;text-transform:uppercase;margin-top:26px;
   }
   .standard-sec .verdict{
     font-family:'Bebas Neue',sans-serif;
@@ -292,22 +210,6 @@
     font-size:15px;color:#9a9a9a;margin-top:44px;max-width:44ch;line-height:1.6;
   }
 
-  /* ---- Results ---- */
-  .proofrows{margin-top:52px}
-  .proofrow{
-    display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline;
-    padding:34px 0;border-bottom:1px solid #e8e8e8;
-    transition:background .2s ease;
-  }
-  .proofrow:first-child{border-top:1px solid #e8e8e8}
-  .proofrow .name{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,3.4vw,46px);letter-spacing:1px}
-  .proofrow .result{font-size:17px;text-align:right;font-weight:500;color:var(--gray)}
-  .proofrow .result b{
-    font-family:'Bebas Neue',sans-serif;font-weight:400;
-    font-size:clamp(26px,3vw,40px);color:var(--charcoal);letter-spacing:.5px;
-    margin-right:10px;
-  }
-
   /* ---- Steps ---- */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:52px;border-top:1px solid #e8e8e8}
   .step{padding:40px 36px 40px 0;border-right:1px solid #e8e8e8}
@@ -315,98 +217,74 @@
   .step .num{font-family:'Bebas Neue',sans-serif;font-size:76px;color:var(--orange);line-height:1}
   .step p{margin-top:18px;font-size:17px;line-height:1.55;max-width:26ch}
 
+  /* ---- Risk reversal ---- */
+  .risk{background:var(--light)}
+  .risklist{list-style:none;margin-top:44px}
+  .risklist li{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(26px,3.2vw,44px);
+    letter-spacing:.5px;line-height:1.15;
+    padding:22px 0;border-bottom:1px solid #e0e0e0;
+  }
+  .risklist li:first-child{border-top:1px solid #e0e0e0}
+
   /* ---- Pricing ---- */
-  .pricing{background:var(--light)}
+  .pricing{padding-top:96px}
   .now-you{
     font-family:'Bebas Neue',sans-serif;
     font-size:clamp(36px,4.8vw,64px);
     color:var(--orange);
     letter-spacing:1px;
-    margin-top:34px;
+    margin-top:30px;
     line-height:1;
   }
-  .price-note{
-    font-size:clamp(16px,1.5vw,19px);
-    color:var(--gray);
-    font-weight:500;
-    margin-top:16px;
-    line-height:1.5;
-  }
+  .price-note{font-size:16px;color:var(--gray);margin-top:20px;max-width:44ch;line-height:1.6}
+
   /* ---- Mid-page CTA ---- */
-  /* Was an orphaned paragraph floating between two bands. A hairline gives it a
-     top edge to sit against, so it reads as a deliberate interstitial. */
-  .mid-cta{padding:var(--s7) 0 var(--s3)}
-  .mid-cta .wrap{border-top:1px solid #e8e8e8;padding-top:var(--s5)}
-  .mid-cta .lead{max-width:46ch;font-size:clamp(19px,1.9vw,24px);line-height:1.5}
+  .mid-cta{padding:72px 0}
+  .mid-cta .lead{max-width:52ch}
+  .scarcity{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(22px,2.4vw,32px);
+    letter-spacing:1px;margin-top:26px;color:var(--charcoal);
+  }
 
   /* ---- Booking ---- */
-  .booking{background:var(--charcoal);color:var(--white);padding:var(--s8) 0}
+  .booking{background:var(--charcoal);color:var(--white);padding:120px 0}
   .booking h2{color:var(--white)}
   .booking .label{color:#9a9a9a}
   .booking .lead{color:#cfcfcf}
   .booking .grid12{align-items:start}
   .booking-copy{grid-column:1/7}
   .booking-form{grid-column:8/13}
-  .book-steps{list-style:none;margin-top:34px}
-  .book-steps li{
-    display:grid;grid-template-columns:36px 1fr;gap:16px;align-items:start;
-    padding:18px 0;border-top:1px solid #333;
-  }
-  .book-steps li:last-child{border-bottom:1px solid #333}
-  .book-steps .bs-num{
-    font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--orange);
-    line-height:1;letter-spacing:1px;
-  }
-  .book-steps .bs-txt{color:#cfcfcf;font-size:16px;line-height:1.55}
   form{margin-top:8px}
   .field{margin-bottom:28px}
   .field label{
     display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;
     color:#9a9a9a;margin-bottom:8px;font-weight:600;
   }
-  .field input,.field select,.field textarea{
+  .field input,.field select{
     width:100%;background:transparent;border:none;border-bottom:2px solid #444;
     color:var(--white);font-family:'Inter',sans-serif;font-size:17px;padding:10px 0;
     transition:border-color .15s ease;
-    resize:vertical;
   }
-  .field input::placeholder,.field textarea::placeholder{color:#5a5a5a}
-  /* Optional-field aside. Sentence case and un-tracked so it reads as a note from us
-     rather than more form furniture. Orange because it is a promise, same as .capacity. */
-  .field .opt{
-    display:block;text-transform:none;letter-spacing:0;font-size:12px;
-    font-weight:400;color:var(--orange);margin-top:5px;
-  }
-  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-bottom-color:var(--orange)}
-  .field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{
-    outline:2px solid var(--orange);outline-offset:4px;
-  }
-  /* Native select chrome renders light-on-light against the charcoal ground.
-     Own the arrow instead. */
-  .field select{
-    cursor:pointer;appearance:none;-webkit-appearance:none;
-    background-image:linear-gradient(45deg,transparent 50%,var(--orange) 50%),
-                     linear-gradient(135deg,var(--orange) 50%,transparent 50%);
-    background-position:calc(100% - 13px) center,calc(100% - 7px) center;
-    background-size:6px 6px,6px 6px;
-    background-repeat:no-repeat;
-    padding-right:32px;
-  }
+  .field input::placeholder{color:#5a5a5a}
+  .field input:focus,.field select:focus{outline:none;border-bottom-color:var(--orange)}
+  .field select{cursor:pointer}
   .field select option{background:var(--charcoal);color:var(--white)}
-  .capacity{
-    border-left:3px solid var(--orange);padding-left:16px;
-    margin:34px 0 8px;color:#cfcfcf;font-size:15px;line-height:1.6;
-  }
+  .field .hint{display:block;font-size:13px;color:#7a7a7a;margin-top:8px;letter-spacing:0;text-transform:none;font-weight:400}
   form .cta{margin-top:14px;width:100%;text-align:center}
   .form-note{color:#8a8a8a;font-size:14px;margin-top:20px;line-height:1.6}
 
-  /* ---- Footer ---- */
-  footer{background:#0f0f0f;color:#cfcfcf;padding:var(--s7) 0}
-  /* Footer already names the brand in .fname, so the lockup contributes the mark
-     only — otherwise the name and tagline print twice, stacked. */
-  .lockup-footer{margin-bottom:20px}
-  .lockup-footer .lockup-type{display:none}
-  .lockup-footer .lockup-mark{height:88px}
+  /* ---- Footer. The brand line lives here, as the sign-off lockup, exactly
+         where it sits in the final frame of all six DR assets. ---- */
+  footer{background:#0f0f0f;color:#cfcfcf;padding:72px 0}
+  footer .flogo{height:110px;margin-bottom:28px}
+  footer .signoff{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(24px,3vw,40px);
+    letter-spacing:1px;color:var(--white);line-height:1.1;margin-bottom:22px;
+  }
   footer .fname{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white)}
   footer .fname span{color:var(--orange)}
   footer .boiler{max-width:62ch;font-size:15px;line-height:1.6;margin-top:16px;color:#9a9a9a}
@@ -414,38 +292,33 @@
   /* ---- Responsive ---- */
   @media(max-width:960px){
     .wrap{padding:0 24px}
-    .hero{padding-top:48px}
+    /* Keep the wordmark on one line. At 390px "HILLDAVE LABS" wrapped under the
+       mark and read as two stacked words rather than one name. */
+    .lockup-mark{height:58px}
+    .lockup-name{font-size:24px;white-space:nowrap}
+    .hero{padding-top:36px;padding-bottom:48px}
     .hero-copy{grid-column:1/13}
-    .hero-media{grid-column:1/13;margin-top:44px}
-    .hero-tile{max-width:340px;margin:0 auto 0 0}
+    .hero-media{grid-column:1/13;margin-top:40px}
+    .hero-tile{max-width:300px;margin:0 auto 0 0}
+    .rail{grid-column:1/13;margin-bottom:18px}
+    .rail .label{position:static}
     .main{grid-column:1/13}
-    section{padding:var(--s7) 0}
-    .standard-sec{padding:var(--s7) 0}
+    section{padding:72px 0}
+    .standard-sec{padding:96px 0}
     .steps{grid-template-columns:1fr}
     .step{border-right:none;border-bottom:1px solid #e8e8e8;padding:32px 0}
     .step:last-child{border-bottom:none}
-    .proofrow{grid-template-columns:1fr;gap:8px}
-    .proofrow .result{text-align:left}
     .booking-copy,.booking-form{grid-column:1/13}
     .booking-form{margin-top:44px}
-    .tile{height:230px}
   }
   @media(prefers-reduced-motion:reduce){
     *{transition:none!important}
     html{scroll-behavior:auto}
-    /* Must be .js-fx .fx, not .fx — the hidden state is now (0,2,0) and a bare
-       .fx (0,1,0) loses to it, which would hide the page from reduced-motion users. */
     .js-fx .fx{opacity:1;transform:none}
-    .reel-track{animation:none;width:auto}
-    .reel-outer{overflow-x:auto}
-    .reel-track .tile:nth-child(n+5){display:none}
   }
 </style>
 
-<!-- ================= META PIXEL ================= -->
-<!-- VERIFY THE ID BELOW against Meta Events Manager before trusting any data.
-     "HIllDave Pixel" in ad account 68604241 - the active pixel carrying real
-     event history, confirmed in Events Manager. -->
+<!-- ================= TRACKING: META PIXEL ================= -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -456,11 +329,8 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 
-/* One entry per ad account that needs to see this traffic. Every listed pixel
-   fires the same events. Add a matching <noscript> img below for each ID. */
-var HD_PIXEL_IDS = [
-  '1463304112253384'
-];
+/* Live HillDave Pixel, matches ad account 68604241. Verified Aug 17, 2026. */
+var HD_PIXEL_IDS = ['1463304112253384'];
 HD_PIXEL_IDS.forEach(function(id){ fbq('init', id); });
 fbq('track', 'PageView');
 </script>
@@ -468,232 +338,251 @@ fbq('track', 'PageView');
 <img height="1" width="1" style="display:none" alt=""
      src="https://www.facebook.com/tr?id=1463304112253384&ev=PageView&noscript=1"/>
 </noscript>
-<!-- =============== END META PIXEL =============== -->
 
-<!-- ================= AD ATTRIBUTION CAPTURE =================
-     Reads the ad-click parameters ONCE, on first load, and holds them for the
-     rest of the session.
-
-     Why on load and not at submit time: by the time the visitor submits, the
-     address bar is not guaranteed to still carry the query string. They may have
-     jumped to #book, navigated away and come back, or arrived through a link
-     that dropped it. A value read late is a value that can be missing, and the
-     failure is silent — the form still submits, just with nothing attached.
-
-     First non-empty value wins, so a later untagged pageview in the same session
-     can never overwrite the tagged one that actually brought the visitor here.
-     ========================================================== -->
-<script>
-(function(){
-  /* The five UTMs have matching HubSpot contact properties. The click IDs do
-     not, and are carried to the scheduler only. */
-  var KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term',
-              'gclid','fbclid','li_fat_id','ttclid','msclkid'];
-  var STORE = 'hd_attrib';
-  var LANDING = 'hd_landing_url';
-
-  var saved = {};
-  try { saved = JSON.parse(sessionStorage.getItem(STORE)) || {}; } catch(e){ saved = {}; }
-
-  var qs = new URLSearchParams(window.location.search);
-  var dirty = false;
-  KEYS.forEach(function(k){
-    var v = qs.get(k);
-    if (v && !saved[k]) { saved[k] = v; dirty = true; }
-  });
-  if (dirty) { try { sessionStorage.setItem(STORE, JSON.stringify(saved)); } catch(e){} }
-
-  /* The URL the visitor actually landed on, query string intact. Sent as the
-     form's pageUri so HubSpot's own source attribution sees the tagged URL
-     rather than a bare one — a submit-time window.location.href had already
-     lost its query string and was recording contacts as DIRECT_TRAFFIC. */
-  var landing = null;
-  try { landing = sessionStorage.getItem(LANDING); } catch(e){}
-  if (!landing) {
-    landing = window.location.href;
-    try { sessionStorage.setItem(LANDING, landing); } catch(e){}
-  }
-
-  /* In-memory fallback: Safari private mode throws on sessionStorage writes, so
-     the values must still be reachable within this pageview. */
-  window.HD_ATTRIB = saved;
-  window.HD_LANDING_URL = landing;
-})();
-</script>
-<!-- =============== END AD ATTRIBUTION CAPTURE =============== -->
+<script type="text/javascript" id="hs-script-loader" async defer
+        src="//js.hs-scripts.com/50739084.js"></script>
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <div class="lockup" role="img" aria-label="HillDave — Gold Standard">
-      <img class="lockup-mark" src="assets/logos/mark.png" alt="">
-      <span class="lockup-type">
-        <span class="lockup-name">HillDave</span>
-        <span class="lockup-tag">Gold Standard</span>
-      </span>
+    <!-- Real lockup. mix-blend-mode:multiply drops the asset's white ground on the
+         light header; the dark footer uses the purpose-made white-on-black art
+         instead of inverting this one, which turned the stipple to mush. -->
+    <div class="lockup">
+      <img class="lockup-mark" src="assets/logos/mark.png" alt="" width="76" height="76">
+      <span class="lockup-type"><span class="lockup-name">HillDave Labs</span></span>
     </div>
-    <a class="header-cta" href="#book">Book a meeting</a>
+    <a class="header-cta" href="#book">Book the time</a>
   </div>
 </header>
 
+<!-- ============================================================
+     1. HERO. The offer is the headline. Offer stack, then the
+        risk-kill, then the CTA. All above the fold.
+     ============================================================ -->
 <div class="hero">
   <div class="wrap grid12">
+    <!-- HERO IS DELIBERATELY NOT ANIMATED. No .fx classes above the fold.
+         The offer, the stack, the risk-kill and the CTA paint at full opacity
+         on first frame, with no transition and no observer involved. Animating
+         the hero is what blanked the original page. Do not add .fx here. -->
     <div class="hero-copy">
-      <span class="label fx">For brands that could never buy Fortune 500 advertising</span>
+      <span class="label">For brands that could never buy Fortune 500 advertising</span>
       <h1>
-        <span class="fx d1">Generation is everywhere.</span>
-        <span class="fx d2 hero-line2">Judgment is <span class="nobr">not<span class="dot">.</span></span></span>
+        <span>Your brand position,</span>
+        <span>written free before we meet<span class="dot">.</span></span>
       </h1>
-      <p class="sub fx d3">Data. Analysis. Strategy. Creative. Social and media buys optimized across every platform. One system, one job: drive revenue, build the brand.</p>
-      <div class="fx d4">
-        <a href="#book" class="cta">Book a meeting &rarr;</a>
-        <span class="micro">Before we meet, we write your brand position from your site. Then we build the first ads from it. Yours either way.</span>
+      <p class="sub">Your first ads built from it. Finished before you arrive. Yours either way.</p>
+      <div>
+        <a href="#book" class="cta">Book thirty minutes &rarr;</a>
+        <span class="micro">No questionnaire. No pitch. Yours even if we never work together.</span>
       </div>
     </div>
-    <div class="hero-media fx d3">
+    <div class="hero-media">
       <div class="hero-tile">
-        <video autoplay muted loop playsinline poster="assets/posters/mom.jpg" aria-label="Social ad: Baby Ktan"></video>
+        <!-- s2_nochar, transcoded 70 MB -> 352 KB (720x1280, 10s, no audio). The
+             70 MB master cannot autoplay on cellular; that weight is what made the
+             old page hang on mobile. width/height are set so the tile reserves its
+             box before the poster decodes and the hero does not shift.
+             data-src, not src: attached by the lazy loader below. Poster is 32 KB
+             and is what a no-JS visitor sees. -->
+        <video class="hero-video" autoplay muted loop playsinline preload="none"
+               width="720" height="1280"
+               poster="assets/posters/hero-position.jpg"
+               data-src="assets/videos/hero-position.mp4"
+               aria-label="Ad spot: two in the morning"></video>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ============================================================
+     2. PROOF, immediately after the promise.
+     ============================================================ -->
 <div class="proofband">
   <div class="wrap">
-    <div class="heritage-label fx">Thirty years of Fortune 500 production &mdash; the team&rsquo;s work has shipped for</div>
-    <div class="logowall fx d1" aria-label="Brands the team's work has shipped for">
-      <img src="assets/logos/brands/coca-cola.svg" alt="Coca-Cola">
-      <img src="assets/logos/brands/pepsico.svg" alt="PepsiCo">
-      <img src="assets/logos/brands/microsoft.svg" alt="Microsoft">
-      <img src="assets/logos/brands/att.svg" alt="AT&amp;T">
-      <img src="assets/logos/brands/disney.svg" alt="Disney">
-      <img src="assets/logos/brands/gm.svg" alt="GM">
-      <span class="sb">+ Super Bowl campaigns</span>
-    </div>
+    <div class="heritage-label fx">Thirty years of Fortune 500 strategy and production</div>
+    <div class="heritage fx d1">Coca-Cola &middot; PepsiCo &middot; Microsoft &middot; AT&amp;T &middot; Disney &middot; GM &middot; <span>Super Bowl campaigns</span></div>
     <div class="today-label fx d2" style="margin-top:34px">Running today</div>
-    <div class="roster fx d3">Snype &middot; Baby Ktan &middot; Fundstrat &middot; Mexxo Tequila &middot; and more</div>
+    <div class="roster fx d3">Snype &middot; Baby Ktan &middot; Fundstrat &middot; Mexxo Tequila</div>
+    <p class="band-note fx d4">The platform runs this agency. Client work ships through it every day.</p>
+    <p class="band-figure fx d4">Snype: 98.7% cost reduction. $10K delivered against $750K traditional.</p>
   </div>
 </div>
 
-<section class="work">
+<!-- ============================================================
+     3. THE PROBLEM. Pain hook and cause, from the ads.
+     ============================================================ -->
+<section>
   <div class="wrap grid12">
+    <div class="rail"><span class="label fx">The problem</span></div>
     <div class="main">
-      <h2 class="fx">The ads are the last step<span class="dot">.</span></h2>
-      <p class="lead fx d1">Anyone can generate an ad now. Making one that works takes everything upstream &mdash; brand, data, strategy, copy. This is what that looks like.</p>
-    </div>
-  </div>
-  <!-- WORK MARQUEE: tiles auto-scroll and loop seamlessly. The track is duplicated once
-       (required for the loop) — when swapping in videos, make the SAME swap in both copies.
-
-       Sources are in data-src, NOT src, and are attached by JS when the reel scrolls
-       into view. With eight plain autoplay <video> tags this section pulled 30.5 MB on
-       every pageview — the four files are ~15 MB and each was fetched twice, because
-       the duplicate track requests them concurrently and neither request can serve the
-       other from cache. On cellular that is the page not loading. Posters are 20-52 KB
-       and carry the section on their own, which is also the no-JS fallback.
-       If you add a tile: poster + data-src, never src. -->
-  <div class="reel-outer" aria-label="A reel of recent work">
-    <div class="reel-track">
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
+      <h2 class="fx">Nobody ever decided what your brand stands for<span class="dot">.</span></h2>
+      <p class="lead fx d1">You started a brand. Now you spend your nights in Canva. Or you write an agency a check every month and get a deck.</p>
+      <p class="lead fx d2">The tool was never the problem. Without that decision you are making content, not building a brand. You are paying full price for ads the world scrolls past. That is not thrift. That is waste.</p>
     </div>
   </div>
 </section>
 
+<!-- ============================================================
+     4. THE MECHANISM. Why the fix works.
+     ============================================================ -->
+<section class="standard-sec">
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">The mechanism</span></div>
+    <div class="main">
+      <div class="big fx">A brand position is one decision<span class="dot">.</span></div>
+      <div class="verdict fx d1">The reason people pay more for one brand when ten others sell the same thing<span class="dot">.</span></div>
+      <p class="dogfood fx d2">Position is not a deliverable. It is the decision everything else comes from. It is also the one thing no tool can generate, because it has to be decided, not produced.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     5. THE OFFER STACK. Itemised, concrete, before any price.
+     ============================================================ -->
+<section>
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">The offer</span></div>
+    <div class="main">
+      <h2 class="fx">What you get before we meet<span class="dot">.</span></h2>
+      <ul class="deliver">
+        <li class="fx"><span><b>Your brand position,</b> written from your website.</span></li>
+        <li class="fx"><span><b>Your first ads,</b> built from that position.</span></li>
+        <li class="fx"><span><b>A read on your competitors:</b> the ads they run, where they run them, what performs.</span></li>
+        <li class="fx"><span><b>Thirty minutes on Google Meet,</b> walking you through the position, the strategy, and the ads.</span></li>
+      </ul>
+      <p class="deliver-close fx">Finished before you arrive. Yours either way.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     6. HOW IT WORKS. Removes time delay and effort.
+     ============================================================ -->
+<section>
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">How it works</span></div>
+    <div class="main">
+      <h2 class="fx">Three steps<span class="dot">.</span></h2>
+      <div class="steps">
+        <div class="step fx"><div class="num">1</div><p>Book thirty minutes. You drop your website when you book.</p></div>
+        <div class="step fx d1"><div class="num">2</div><p>We write your position and build your first ads from it. Before you arrive.</p></div>
+        <div class="step fx d2"><div class="num">3</div><p>We walk you through both on the call. Hire us or not, the work is yours.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     7. RISK REVERSAL. Explicit, its own section.
+     ============================================================ -->
+<section class="risk">
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">Terms</span></div>
+    <div class="main">
+      <h2 class="fx">The work is yours either way<span class="dot">.</span></h2>
+      <ul class="risklist">
+        <li class="fx">Thirty minutes. One call.</li>
+        <li class="fx d1">No questionnaire.</li>
+        <li class="fx d2">No pitch.</li>
+        <li class="fx d3">The position is yours if you hire us.</li>
+        <li class="fx d4">The position is yours if you do not.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     8. WHAT AN ENGAGEMENT DELIVERS. Em dashes removed per the
+        Aug 13 ruling. Periods only, no substituted punctuation.
+     ============================================================ -->
+<section>
+  <div class="wrap grid12">
+    <div class="rail"><span class="label fx">If you do hire us</span></div>
+    <div class="main">
+      <h2 class="fx">Seven steps. One outcome<span class="dot">.</span></h2>
+      <ul class="deliver">
+        <li class="fx"><span><b>Your brand bible and position.</b> Defined and written down.</span></li>
+        <li class="fx"><span><b>Your data, read.</b> Channels, ad accounts, competitors, trends.</span></li>
+        <li class="fx"><span><b>Your analytics, interpreted.</b> What performs, and why.</span></li>
+        <li class="fx"><span><b>Your winning strategy.</b> Set from the data.</span></li>
+        <li class="fx"><span><b>Your copy.</b> Written to convert.</span></li>
+        <li class="fx"><span><b>Your creative and content.</b> Produced on the HillDave Video Engine, published on schedule.</span></li>
+        <li class="fx"><span><b>Your results, optimized.</b> Fed back into the strategy.</span></li>
+      </ul>
+      <p class="deliver-close fx">Step one is what you get free when we meet. The engagement is the other six. And the execution.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     9. PRICING. Appears after the value, never as a headline.
+     ============================================================ -->
 <section class="pricing">
   <div class="wrap grid12">
+    <div class="rail"><span class="label fx">Pricing</span></div>
     <div class="main">
-      <span class="label fx">Pricing</span>
-      <h2 class="fx d1">One system. Fortune 500 discipline<span class="dot">.</span></h2>
-      <p class="lead fx d1">The judgment that built iconic campaigns for the world&rsquo;s biggest brands. And now, you.</p>
+      <h2 class="fx">One system. Fortune 500 discipline<span class="dot">.</span></h2>
+      <p class="lead fx d1">The judgment that built iconic campaigns for the world's biggest brands. And now, you.</p>
       <p class="now-you fx d2">Starting at $1,500 a month<span class="dot">.</span></p>
-      <!-- Says what the price buys, not what it beats. Never frame the work against a
-           cheaper alternative — that competes on price and re-opens the comparison the
-           rest of the page is built to escape. -->
       <p class="price-note fx d3">Re-priced by technology. Not by a lower standard.</p>
     </div>
   </div>
 </section>
 
+<!-- ============================================================
+     10. SCARCITY, honest, next to the CTA.
+     ============================================================ -->
 <section class="mid-cta">
   <div class="wrap grid12">
+    <div class="rail"><span class="label fx">Book the time</span></div>
     <div class="main">
-      <p class="lead fx" style="margin-top:0">Book a meeting. We write your brand position before we speak, and build the first ads from it. We walk you through both when we meet. Yours either way.</p>
-      <a href="#book" class="cta fx d1" style="margin-top:28px;display:inline-block">Book a meeting &rarr;</a>
+      <p class="lead fx" style="margin-top:0">We write your position and build your first ads before we ever speak. We walk you through both when we meet.</p>
+      <p class="scarcity fx d1">A few slots a week<span class="dot">.</span></p>
+      <a href="#book" class="cta fx d2" style="margin-top:28px;display:inline-block">Book thirty minutes &rarr;</a>
     </div>
   </div>
 </section>
 
-<section class="deliver-sec">
-  <div class="wrap grid12">
-    <div class="main">
-      <span class="label fx">What an engagement delivers</span>
-      <h2 class="fx d1">Seven steps. One outcome<span class="dot">.</span></h2>
-      <ul class="deliver">
-        <li class="fx"><span><b>Your brand bible and position</b> &mdash; defined and written down.</span></li>
-        <li class="fx"><span><b>Your data, read</b> &mdash; channels, ad accounts, competitors, trends.</span></li>
-        <li class="fx"><span><b>Your analytics, interpreted</b> &mdash; what performs, and why.</span></li>
-        <li class="fx"><span><b>Your winning strategy</b> &mdash; set from the data.</span></li>
-        <li class="fx"><span><b>Your copy</b> &mdash; written to convert.</span></li>
-        <li class="fx"><span><b>Your creative and content</b> &mdash; produced on the HillDave Video Engine, published on schedule.</span></li>
-        <li class="fx"><span><b>Your results, optimized</b> &mdash; fed back into the strategy.</span></li>
-      </ul>
-      <p class="deliver-note fx">Step one is what you get free when we meet. The engagement is the other six &mdash; and the execution.</p>
-      <p class="deliver-close fx">The full cycle that took an agency team the better part of a year ships in weeks. At a higher standard.</p>
-    </div>
-  </div>
-</section>
-
+<!-- ============================================================
+     11. BOOKING.
+     ============================================================ -->
 <section class="booking" id="book">
   <div class="wrap grid12">
     <div class="booking-copy">
-      <span class="label fx">Book a meeting</span>
+      <span class="label fx">Book the time</span>
       <h2 class="fx d1" style="margin-top:26px">Leave with the position. And the ads<span class="dot">.</span></h2>
-      <ol class="book-steps fx d2">
-        <li><span class="bs-num">1</span><span class="bs-txt">Before the meeting, we read your site and your competitors: the ads they run, where they run them, what performs.</span></li>
-        <li><span class="bs-num">2</span><span class="bs-txt">Then we write your brand position, and build the first ads from it.</span></li>
-        <li><span class="bs-num">3</span><span class="bs-txt">In thirty minutes on Google Meet, we walk you through the position, the strategy, and the ads. Hire us or not, the work is yours.</span></li>
-      </ol>
+      <p class="lead fx d2">Before the meeting we read your site and your competitors. Then we write your brand position and build the first ads from it. In thirty minutes on Google Meet we walk you through the position, the strategy, and the ads. Hire us or not, the work is yours.</p>
+      <p class="lead fx d3">We take a few of these a week. Each one is real work.</p>
     </div>
     <div class="booking-form fx d2">
-      <form id="intake-form">
+      <form onsubmit="return false;">
         <div class="field">
           <label for="name">Name</label>
-          <input id="name" name="firstname" type="text" placeholder="Your name" required>
+          <input id="name" type="text" placeholder="Your name" required>
         </div>
         <div class="field">
           <label for="brand">Brand</label>
-          <input id="brand" name="company" type="text" placeholder="Your brand" required>
+          <input id="brand" type="text" placeholder="Your brand" required>
         </div>
         <div class="field">
           <label for="url">Website</label>
-          <input id="url" name="website" type="text" inputmode="url" placeholder="yourbrand.com" required>
+          <input id="url" type="url" placeholder="yourbrand.com" required>
         </div>
-        <!-- The "what does your brand do / what is the benefit" essay field was removed. Asking
-             it contradicts the offer: we write the position from the site before we speak, and the
-             ads say "no questionnaire." Requiring an essay made that copy false. It is also the
-             highest-abandon element you can put in front of cold paid traffic. -->
         <div class="field">
-          <label for="competitors">
-            Your top three competitors
-            <span class="opt">Optional &mdash; we&rsquo;ll find them anyway.</span>
-          </label>
-          <textarea id="competitors" name="your_top_three_competitors_" placeholder="Brand names or URLs." rows="2"></textarea>
+          <label for="competitors">Your top three competitors</label>
+          <input id="competitors" type="text" placeholder="Optional">
+          <span class="hint">Optional. We will find them anyway.</span>
         </div>
         <div class="field">
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" placeholder="you@yourbrand.com" required>
+          <input id="email" type="email" placeholder="you@yourbrand.com" required>
         </div>
         <div class="field">
           <label for="spend">Monthly ad spend</label>
-          <select id="spend" name="monthly_ad_spend" required>
+          <select id="spend" required>
             <option value="" selected disabled>Select a range</option>
             <option>Under $2,500</option>
             <option>$2,500 &ndash; $10,000</option>
@@ -701,397 +590,265 @@ fbq('track', 'PageView');
             <option>$30,000+</option>
           </select>
         </div>
-        <!-- No hardcoded date range here on purpose. A static range goes stale silently and
-             becomes the same class of bug as the placeholder it replaced; a computed one would
-             promise slots without knowing real calendar availability. The scheduler shows true
-             availability one click later, so let it be the source of truth. -->
-        <p class="capacity">We take twelve of these a month, because each one is real work. The earliest slot is three days out.</p>
-        <button type="submit" class="cta">Book a meeting &rarr;</button>
+        <button type="submit" class="cta">Book thirty minutes &rarr;</button>
         <p class="form-note">Submitting takes you to slot selection. You will receive a Google Meet link by email. Your position and first ads are prepared before your slot.</p>
       </form>
+      <div id="hd-meeting-embed" style="display:none;min-height:600px"></div>
     </div>
   </div>
 </section>
 
+<!-- ============================================================
+     12. FOOTER. The brand line as sign-off lockup, matching the
+         final frame of all six DR assets.
+     ============================================================ -->
 <footer>
   <div class="wrap">
-    <div class="lockup lockup-dark lockup-footer" role="img" aria-label="HillDave — Gold Standard">
-      <img class="lockup-mark" src="assets/logos/mark-dark.png" alt="">
-      <span class="lockup-type">
-        <span class="lockup-name">HillDave</span>
-        <span class="lockup-tag">Gold Standard</span>
-      </span>
-    </div>
-    <div class="fname">HILLDAVE LABS <span>&middot;</span> The Gold Standard</div>
-    <p class="boiler">Thirty years of Fortune 500 strategy and production, engineered into one system that turns a brand&rsquo;s data into strategy, ads, and results. Clear, transparent pricing.</p>
+    <!-- Dark ground gets the white-on-black art, not an inversion of mark.png. -->
+    <img class="flogo" src="assets/logos/mark-dark.png" alt="" width="110" height="110">
+    <div class="signoff">Generation is everywhere. Judgment is not<span class="dot">.</span></div>
+    <!-- "Gold Standard" is retired from all on-screen copy per Brand Voice v3.1.
+         It survives only inside the logo lockup image above. Do not add it here. -->
+    <div class="fname">HILLDAVE LABS</div>
+    <p class="boiler">Thirty years of Fortune 500 strategy and production, engineered into one system that turns a brand's data into strategy, ads, and results. Clear, transparent pricing.</p>
   </div>
 </footer>
 
+<!-- ============================================================
+     MOTION. Rewritten so content can never be trapped invisible:
+     already-visible elements reveal on init, and a failsafe
+     reveals everything after 900ms regardless of observer state.
+     ============================================================ -->
 <script>
-/* Scroll reveal. Three independent guarantees that content is never left invisible,
-   because every previous version had exactly one and it failed on mobile:
-     1. the hidden state only exists under .js-fx (see <head>), so no JS = visible;
-     2. anything already on screen is revealed synchronously here, not on a callback;
-     3. a 1000ms timer reveals whatever is left, whatever the observer did.
-   Wrapped in try/catch that reveals everything on throw — a blank page is a far
-   worse outcome than a missing animation. Indexed loops, not NodeList.forEach,
-   which older in-app webviews lack. */
 (function(){
-  var els = document.querySelectorAll('.fx');
-  var i;
-  function revealAll(){
-    for(i=0;i<els.length;i++){els[i].classList.add('in');}
+  var els = Array.prototype.slice.call(document.querySelectorAll('.fx'));
+  function show(el){ el.classList.add('in'); }
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduced || !('IntersectionObserver' in window)) {
+    els.forEach(show);
+    return;
   }
-  try{
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduced || !('IntersectionObserver' in window)){ revealAll(); return; }
 
-    var io = new IntersectionObserver(function(entries){
-      for(var j=0;j<entries.length;j++){
-        if(entries[j].isIntersecting){
-          entries[j].target.classList.add('in');
-          io.unobserve(entries[j].target);
-        }
-      }
-    /* threshold:0 — any single pixel counts. At 0.15 an element taller than ~6x its
-       visible slice never qualified: at 500px wide the hero CTA block sat at ratio
-       0.10 and only revealed by luck, on a reflow when the webfont landed. */
-    },{threshold:0,rootMargin:'0px 0px -40px 0px'});
+  // Reveal anything already inside the viewport immediately. This is the bug
+  // that blanked the page on mobile: the observer never fired for elements
+  // that were on screen at load.
+  var vh = window.innerHeight || document.documentElement.clientHeight;
+  els.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if (r.top < vh && r.bottom > 0) show(el);
+  });
 
-    /* Reveal everything currently on screen, unanimated. Do not wait for the
-       observer's first callback — that dispatch is what mobile was waiting on. */
-    function sweep(){
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      /* 1.6x the fold, not 1x, and this margin is the whole point. At script time
-         Bebas Neue has not applied and the hero measures short in the fallback face,
-         so an element that ends up above the fold can still measure below it here.
-         Reading the exact fold would mean waiting on document.fonts.ready, which
-         resolves after the load event — that is a race, and losing it shows a blank
-         CTA. Being generous about what counts as "on arrival" removes the race
-         instead of timing it. Cost is that the cascade starts a screen further down. */
-      var edge = vh * 1.6;
-      for(var k=0;k<els.length;k++){
-        if(els[k].classList.contains('in')) continue;
-        var r = els[k].getBoundingClientRect();
-        if(r.top < edge && r.bottom > 0){ els[k].className += ' in in-now'; }
-      }
-    }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
+    });
+  }, {threshold: 0, rootMargin: '0px 0px -10% 0px'});
+  els.forEach(function(el){ if (!el.classList.contains('in')) io.observe(el); });
 
-    sweep();
-    for(i=0;i<els.length;i++){ io.observe(els[i]); }
-
-    /* Sweep again once layout settles. Bebas Neue is far taller per line than the
-       fallback, so at script time the hero measures short: at 1280x800 the CTA block
-       sat just below the fold pre-font, got handed to the observer, and faded in over
-       ~1s instead of being there on arrival. Fold clearance at that width is 21px, so
-       this is not an edge case, it is every laptop. */
-    if(document.fonts && document.fonts.ready && document.fonts.ready.then){
-      document.fonts.ready.then(sweep).catch(function(){});
-    }
-    window.addEventListener('load', sweep);
-
-    setTimeout(revealAll,1000);
-  }catch(e){
-    revealAll();
-  }
+  /* Failsafe. Reveals EVERY remaining element, not just the ones above the fold.
+     The earlier version gated on r.top < innerHeight, which meant that if the
+     observer ever failed, everything below the fold stayed invisible forever --
+     the failsafe covered only the part of the page that was least likely to
+     need it. Indexed loop, not NodeList.forEach, which older in-app webviews lack. */
+  setTimeout(function(){
+    var left = document.querySelectorAll('.fx:not(.in)');
+    for (var i = 0; i < left.length; i++) show(left[i]);
+  }, 900);
 })();
 
-/* Reel videos: attach data-src only once the reel is actually on screen, so the
-   30.5 MB of mp4 is never on the critical path. Unique files load first; the
-   duplicate track waits 1200ms so its identical URLs come from cache instead of
-   racing the originals over the wire. Failure mode is the poster, which is the
-   same thing a no-JS visitor gets — never a blank tile. */
+/* Hero + reel video: attach sources only when in view, so no video is ever on the
+   critical path. Failure mode is the poster, which is also what a no-JS visitor
+   gets -- never a blank tile. */
 (function(){
-  var reel = document.querySelector('.reel-outer');
-  if(!reel) return;
-  var loaded = false;
-  function load(){
-    if(loaded) return;
-    loaded = true;
-    var vids = reel.querySelectorAll('video[data-src]');
-    var seen = {};
-    for(var i=0;i<vids.length;i++){
-      (function(v){
-        /* Reduced-motion hides the duplicate half of the track (display:none).
-           Don't spend a visitor's data on tiles they will never see. */
-        if(v.offsetParent === null) return;
-        var url = v.getAttribute('data-src');
-        var dupe = !!seen[url];
-        seen[url] = true;
-        setTimeout(function(){
-          v.src = url;
-          v.removeAttribute('data-src');
-          var p = v.play();
-          if(p && p.catch) p.catch(function(){});
-        }, dupe ? 1200 : 0);
-      })(vids[i]);
-    }
+  var vids = document.querySelectorAll('video[data-src]');
+  if (!vids.length) return;
+  function attach(v){
+    if (!v.getAttribute('data-src')) return;
+    v.src = v.getAttribute('data-src');
+    v.removeAttribute('data-src');
+    var p = v.play();
+    if (p && p.catch) p.catch(function(){});
   }
-  try{
-    if(!('IntersectionObserver' in window)){ load(); return; }
+  try {
+    if (!('IntersectionObserver' in window)) {
+      for (var i = 0; i < vids.length; i++) attach(vids[i]);
+      return;
+    }
     var io = new IntersectionObserver(function(entries){
-      for(var j=0;j<entries.length;j++){
-        if(entries[j].isIntersecting){ load(); io.disconnect(); }
+      for (var j = 0; j < entries.length; j++) {
+        if (entries[j].isIntersecting) { attach(entries[j].target); io.unobserve(entries[j].target); }
       }
-    },{rootMargin:'200px 0px'});
-    io.observe(reel);
-  }catch(e){
-    load();
+    }, {rootMargin: '200px 0px'});
+    for (var k = 0; k < vids.length; k++) io.observe(vids[k]);
+  } catch (e) {
+    for (var n = 0; n < vids.length; n++) attach(vids[n]);
   }
 })();
 </script>
 
-<!-- HubSpot tracking (sets hubspotutk so form submissions are identified, not flagged as suspect) -->
-<script type="text/javascript" id="hs-script-loader" async defer src="//js.hs-scripts.com/50739084.js"></script>
-
+<!-- ================= TRACKING: UTM CAPTURE + EVENT WIRING ================= -->
 <script>
-/* Intake form: save the 6 fields to HubSpot (Forms API), then redirect to the
-   Meetings scheduler with name/email/brand prefilled. Redirects either way so
-   the user always reaches slot selection.
-
-   Attribution note: this is a two-step flow (form here -> slot selection on
-   meetings.hubspot.com). That hand-off is where UTMs get lost, because the
-   scheduler is a different host and inherits nothing from this page's URL.
-   ATTRIB below forwards them explicitly so the booking record can be traced. */
 (function(){
-  var form = document.getElementById('intake-form');
-  if(!form) return;
-  var ENDPOINT  = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
-  var SCHEDULER = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
-  var FIELDS = ['firstname','company','website','your_top_three_competitors_','email','monthly_ad_spend'];
-  var ATTRIB = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid','li_fat_id','ttclid','msclkid'];
-  /* Sent to HubSpot as contact properties. These five have matching properties
-     in portal 50739084 AND must exist as fields on the form itself -- a property
-     alone is not enough. The Forms API returns 200 and silently DISCARDS any
-     field the form definition does not declare, so a missing form field looks
-     exactly like success. Verified by probe on 2026-08-13. */
-  var UTM_FIELDS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+  var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+  var params = new URLSearchParams(window.location.search);
+  var freshUtms = {};
+  var hasNewUtm = false;
+  UTM_KEYS.forEach(function(k){
+    var v = params.get(k);
+    if (v) { freshUtms[k] = v; hasNewUtm = true; }
+  });
+  if (hasNewUtm) {
+    sessionStorage.setItem('hd_utms', JSON.stringify(freshUtms));
+    localStorage.setItem('hd_utms_last', JSON.stringify(freshUtms));
+    /* Keep the URL the visitor actually landed on, query string and all. It is sent
+       as the Forms API pageUri, and HubSpot derives hs_analytics_first_url from it.
+       Submitting the bare current URL instead records the contact as DIRECT_TRAFFIC
+       with no query string, which reads as broken tracking when in fact the ad click
+       was simply never carried through. */
+    try { sessionStorage.setItem('hd_landing_url', window.location.href); } catch(e) {}
+  }
+  try { window.hdLandingUrl = sessionStorage.getItem('hd_landing_url') || ''; } catch(e) {}
+  var storedUtms = {};
+  try {
+    storedUtms = JSON.parse(sessionStorage.getItem('hd_utms') || localStorage.getItem('hd_utms_last') || '{}');
+  } catch(e) {}
+  window.hdUtms = storedUtms;
 
-  function cookie(name){
-    var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
+  var checkoutFired = false;
+  function fireInitiateCheckout(){
+    if (checkoutFired) return;
+    checkoutFired = true;
+    if (window.fbq) fbq('track', 'InitiateCheckout');
   }
 
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(!form.reportValidity()) return;
-    var btn = form.querySelector('button[type="submit"]');
-    if(btn){ btn.disabled = true; }
+  var viewContentFired = false;
+  var offerEl = document.getElementById('book');
+  if (offerEl && 'IntersectionObserver' in window) {
+    var vcObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting && !viewContentFired) {
+          viewContentFired = true;
+          if (window.fbq) fbq('track', 'ViewContent');
+          vcObserver.disconnect();
+        }
+      });
+    }, {threshold: 0.25});
+    vcObserver.observe(offerEl);
+  }
 
-    // Build the scheduler prefill URL (name split into first/last)
-    var name  = (form.elements['firstname'].value || '').trim();
-    var email = (form.elements['email'].value || '').trim();
-    var brand = (form.elements['company'].value || '').trim();
-    var sp = name.indexOf(' ');
-    var params = new URLSearchParams();
-    if(name) params.set('firstName', sp === -1 ? name : name.slice(0, sp));
-    if(sp !== -1) params.set('lastName', name.slice(sp + 1));
-    if(email) params.set('email', email);
-    if(brand) params.set('company', brand);
+  var intakeForm = document.querySelector('.booking-form form');
+  var meetingContainer = document.getElementById('hd-meeting-embed');
+  if (intakeForm) {
+    intakeForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!intakeForm.checkValidity()) { intakeForm.reportValidity(); return; }
 
-    // Carry ad-click attribution across the host boundary to the scheduler, so the
-    // booking itself is attributable and not just this page's form submission.
-    /* Read from the session-stored copy captured on load, not from the current
-       URL, which may no longer carry the query string. Falls back to the live
-       URL if storage was unavailable. */
-    var attrib = window.HD_ATTRIB || {};
-    var landed = new URLSearchParams(window.location.search);
-    ATTRIB.forEach(function(k){
-      var v = attrib[k] || landed.get(k);
-      if(v) params.set(k, v);
-    });
-    var schedulerUrl = SCHEDULER + '?' + params.toString();
+      fireInitiateCheckout();
 
-    /* Conversion signal for ad optimization. Guarded and wrapped: if a blocker or
-       a Meta outage breaks fbq, the booking must still go through — a tracking
-       failure can never be allowed to strand the user before the scheduler. */
-    try { if (typeof fbq === 'function') fbq('track', 'Lead'); } catch(e){}
+      var base = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
+      var qp = new URLSearchParams();
+      Object.keys(window.hdUtms || {}).forEach(function(k){ qp.set(k, window.hdUtms[k]); });
 
-    var done = false;
-    function go(){ if(!done){ done = true; window.location.href = schedulerUrl; } }
+      var nameVal    = (document.getElementById('name')        || {}).value || '';
+      var email      = (document.getElementById('email')       || {}).value || '';
+      var brand      = (document.getElementById('brand')       || {}).value || '';
+      var siteUrl    = (document.getElementById('url')         || {}).value || '';
+      var spend      = (document.getElementById('spend')       || {}).value || '';
+      var competitors= (document.getElementById('competitors') || {}).value || '';
 
-    // Save all 7 fields to HubSpot
-    /* Only the UTMs that actually have a value are sent. Submitting empty ones
-       would risk blanking first-touch attribution on a repeat submitter. */
-    var payload = {
-      fields: FIELDS.map(function(n){
-        var el = form.elements[n];
-        return { objectTypeId: '0-1', name: n, value: el ? el.value.trim() : '' };
-      }).concat(UTM_FIELDS.filter(function(n){ return attrib[n]; }).map(function(n){
-        return { objectTypeId: '0-1', name: n, value: attrib[n] };
-      })),
-      context: {
-        pageUri: window.HD_LANDING_URL || window.location.href,
-        pageName: document.title
+      if (email) qp.set('email', email);
+      if (nameVal) {
+        var parts = nameVal.split(' ');
+        qp.set('firstname', parts[0]);
+        qp.set('lastname', parts.slice(1).join(' '));
       }
-    };
-    var hutk = cookie('hubspotutk');
-    if(hutk){ payload.context.hutk = hutk; }
+      if (brand)    qp.set('company', brand);
+      if (siteUrl)  qp.set('website', siteUrl);
+      if (spend)    qp.set('monthly_ad_spend', spend);
+      /* Property is your_top_three_competitors_ in portal 50739084. There is no
+         top_competitors property -- verified 2026-08-17. The scheduler silently
+         ignores a prefill param that names no property, so the wrong name here
+         looked exactly like success and dropped the answer on the floor. */
+      if (competitors) qp.set('your_top_three_competitors_', competitors);
 
-    setTimeout(go, 4000); // never strand the user on a slow request
-    fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function(){ go(); }, function(err){ console.error('HubSpot submit error:', err); go(); });
+      /* Save the intake to HubSpot before handing off to the scheduler.
+         Without this POST no contact exists until a slot is actually booked,
+         which means: emails #1 and #2 never fire (the workflow is triggered by
+         form submission, and Starter has no meeting-booked trigger); the utm_*
+         contact properties are never written, so creative-level attribution is
+         impossible; and anyone who abandons at slot selection is lost entirely.
+         Payload shape is the one verified 200 on the previous page -- exactly
+         these six fields plus whichever UTMs have values. Do not add a field
+         the form does not declare: the parity rule cuts both ways and an extra
+         field 400s every submission.
+
+         Deliberately fire-and-forget. The scheduler embed must appear whether or
+         not this request succeeds; a HubSpot outage cannot be allowed to block a
+         booking. That does mean a failure here is silent, so if intake stops
+         arriving, probe the endpoint directly rather than trusting the page. */
+      try {
+        var HS_ENDPOINT = 'https://api.hsforms.com/submissions/v3/integration/submit/50739084/a60dae9a-38f3-4a92-874b-4e20bc74bb81';
+        var UTM_FIELDS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+        var utms = window.hdUtms || {};
+        var fields = [
+          /* firstname carries the whole Name value, matching the previous page.
+             The form declares no lastname field, so splitting here would throw
+             the surname away rather than store it. */
+          { objectTypeId: '0-1', name: 'firstname', value: nameVal.trim() },
+          { objectTypeId: '0-1', name: 'company', value: brand.trim() },
+          { objectTypeId: '0-1', name: 'website', value: siteUrl.trim() },
+          { objectTypeId: '0-1', name: 'your_top_three_competitors_', value: competitors.trim() },
+          { objectTypeId: '0-1', name: 'email', value: email.trim() },
+          { objectTypeId: '0-1', name: 'monthly_ad_spend', value: spend.trim() }
+        ];
+        UTM_FIELDS.forEach(function(n){
+          /* Only UTMs with a value. Sending empties would blank first-touch
+             attribution for a repeat submitter. */
+          if (utms[n]) fields.push({ objectTypeId: '0-1', name: n, value: utms[n] });
+        });
+        var m = document.cookie.match('(^|;)\\s*hubspotutk\\s*=\\s*([^;]+)');
+        var payload = {
+          fields: fields,
+          context: {
+            pageUri: window.hdLandingUrl || window.location.href,
+            pageName: document.title
+          }
+        };
+        if (m) payload.context.hutk = m.pop();
+        fetch(HS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(function(err){ console.error('HubSpot submit error:', err); });
+      } catch (err) { console.error('HubSpot submit error:', err); }
+
+      var src = base + '?' + qp.toString() + '&embed=true';
+
+      if (meetingContainer) {
+        meetingContainer.innerHTML = '<div class="meetings-iframe-container" data-src="' + src + '"></div>';
+        intakeForm.style.display = 'none';
+        meetingContainer.style.display = 'block';
+
+        if (!window.hdMeetingsScriptLoaded) {
+          window.hdMeetingsScriptLoaded = true;
+          var s = document.createElement('script');
+          s.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js';
+          document.body.appendChild(s);
+        } else if (window.hbspt && window.hbspt.meetings) {
+          window.hbspt.meetings.create('.meetings-iframe-container');
+        }
+      }
+    });
+  }
+
+  window.addEventListener('message', function(e){
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.meetingBookSucceeded || e.data.eventName === 'meetingBookSuccessful') {
+      if (window.fbq) fbq('track', 'Schedule');
+    }
   });
 })();
 </script>
-
-<!-- =========================================================================
-     HILLDAVE PIXEL PATCH — ViewContent + InitiateCheckout
-     Written Aug 13, 2026 for position.hilldave.com
-
-     WHAT THIS DOES
-       Adds the two missing Meta pixel events to the landing page:
-         ViewContent      - fires once, when the visitor actually sees the booking block
-         InitiateCheckout - fires once, when the intake form is successfully submitted
-
-     WHAT THIS DOES NOT DO
-       It does not touch the existing form handler, the Lead event, the UTM
-       capture, the HubSpot tracking cookie (hutk), or the redirect to the
-       scheduler. Nothing that currently works is modified. This block is
-       purely additive and self-contained.
-
-     WHERE IT GOES
-       Immediately before the closing </body> tag, AFTER the existing
-       tracking script that initialises the pixel (1463304112253384).
-       It must come after fbq('init', ...) or it will silently do nothing.
-
-     STILL MISSING AFTER THIS PATCH
-       Schedule (the actual booking conversion) cannot fire from this page,
-       because the booking is confirmed on meetings.hubspot.com, a different
-       domain. That needs either a post-booking redirect back to this site,
-       or a HubSpot workflow -> Meta Conversions API. See notes at bottom.
-     ========================================================================= -->
-<script>
-(function () {
-  'use strict';
-
-  // ---------------------------------------------------------------------
-  // Safe wrapper. If the pixel didn't load, or Meta's script errors,
-  // tracking must never break the page or block the form.
-  // ---------------------------------------------------------------------
-  function px(eventName, eventId) {
-    if (typeof window.fbq !== 'function') return;
-    try {
-      window.fbq('track', eventName, {}, { eventID: eventId });
-    } catch (e) {
-      /* swallow - a tracking failure must not affect the visitor */
-    }
-  }
-
-  // Unique per-event ID. Not needed today, but it means that when the
-  // Schedule event is later sent server-side via the Conversions API,
-  // Meta can deduplicate browser and server events instead of
-  // double-counting them.
-  function eid(prefix) {
-    return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
-  }
-
-  // ---------------------------------------------------------------------
-  // 1. ViewContent
-  //    Fires the first time the booking block (#book) is meaningfully in
-  //    view. This is the "they saw the offer" signal - the step between
-  //    landing on the page and starting the form.
-  // ---------------------------------------------------------------------
-  var viewContentFired = false;
-
-  function fireViewContent() {
-    if (viewContentFired) return;
-    viewContentFired = true;
-    px('ViewContent', eid('vc'));
-  }
-
-  var bookEl = document.getElementById('book');
-
-  if (bookEl && 'IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        if (entries[i].isIntersecting) {
-          fireViewContent();
-          observer.disconnect();
-          return;
-        }
-      }
-    }, { threshold: 0.25 });
-
-    observer.observe(bookEl);
-
-  } else if (bookEl) {
-    // Fallback for browsers without IntersectionObserver.
-    var onScroll = function () {
-      if (bookEl.getBoundingClientRect().top < window.innerHeight * 0.75) {
-        fireViewContent();
-        window.removeEventListener('scroll', onScroll);
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // in case the block is already in view on load
-  }
-
-  // ---------------------------------------------------------------------
-  // 2. InitiateCheckout
-  //    Fires when the intake form is submitted with valid input - i.e.
-  //    the visitor is being handed off to the HubSpot scheduler.
-  //
-  //    Registered in the CAPTURE phase (third argument = true) so it runs
-  //    BEFORE the existing submit handler calls preventDefault(). That
-  //    guarantees the pixel request is issued while the page is still
-  //    alive, ahead of the redirect to meetings.hubspot.com.
-  //
-  //    Invalid submissions are deliberately not counted, so the number
-  //    matches real handoffs rather than failed form attempts.
-  // ---------------------------------------------------------------------
-  var checkoutFired = false;
-  var form = document.querySelector('.booking-form form');
-
-  if (form) {
-    form.addEventListener('submit', function () {
-      if (checkoutFired) return;
-      if (typeof form.checkValidity === 'function' && !form.checkValidity()) return;
-      checkoutFired = true;
-      px('InitiateCheckout', eid('ic'));
-    }, true);
-  }
-})();
-</script>
-
-<!-- =========================================================================
-     NOTES ON THE REMAINING EVENT: Schedule
-
-     The booking is confirmed on meetings.hubspot.com, so this page is
-     already unloaded by the time a booking succeeds. There are two ways
-     to close that gap, in order of effort:
-
-     OPTION A - post-booking redirect (fast, do this if the setting exists)
-       In HubSpot: Meetings -> "HillDave First Meet" -> Edit -> Configuration
-       (look for a post-booking / confirmation option). If a custom redirect
-       URL is available, point it at a thank-you page on position.hilldave.com,
-       e.g. https://position.hilldave.com/booked
-       Put the pixel base code on that page plus:
-
-           fbq('track', 'Schedule');
-
-       Caveat: this only fires if the visitor's browser actually follows the
-       redirect. Someone who closes the tab on the confirmation screen is
-       missed. Good enough for optimisation, slightly undercounts.
-
-     OPTION B - HubSpot workflow -> Meta Conversions API (accurate, slower)
-       Trigger: meeting booked on the "HillDave First Meet" link.
-       Action:  webhook -> a small endpoint that sends a server-side
-                "Schedule" event to the Meta Conversions API for pixel
-                1463304112253384, passing the hashed email and the fbp /
-                fbc cookies captured at form submit.
-       This counts every booking regardless of browser behaviour, and is
-       immune to ad blockers and iOS tracking restrictions.
-
-     Until one of these is in place, booked calls can still be attributed by
-     creative - the UTM parameters (including utm_content, which is the
-     HillDave-cut vs no-character-cut variable) are already carried through
-     to the HubSpot scheduler and land on the contact record. That analysis
-     is manual, in HubSpot, rather than automatic in Ads Manager.
-     ========================================================================= -->
-
 </body>
 </html>
