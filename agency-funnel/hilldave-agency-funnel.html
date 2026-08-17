@@ -460,17 +460,25 @@ fbq('track', 'PageView');
        the duplicate track requests them concurrently and neither request can serve the
        other from cache. On cellular that is the page not loading. Posters are 20-52 KB
        and carry the section on their own, which is also the no-JS fallback.
-       If you add a tile: poster + data-src, never src. -->
+       If you add a tile: poster + data-src, never src.
+
+       The ?v=2 on every tile URL is load-bearing. nginx serves static assets with
+       Cache-Control: max-age=2592000 (30 days) and these files are NOT
+       content-hashed, so when the four videos were re-encoded from 15.6 MB down to
+       2.0 MB, every client that had already seen the page kept serving the old
+       heavy files for up to a month -- the mobile fix would have reached new
+       visitors only. Bump this version whenever a tile asset is replaced under the
+       same filename. -->
   <div class="reel-outer" aria-label="A reel of recent work">
     <div class="reel-track">
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg?v=2" data-src="assets/videos/driver.mp4?v=2" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg?v=2" data-src="assets/videos/mom.mp4?v=2" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg?v=2" data-src="assets/videos/redcarpet.mp4?v=2" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg?v=2" data-src="assets/videos/cards.mp4?v=2" aria-label="Ad spot: card game"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg?v=2" data-src="assets/videos/driver.mp4?v=2" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg?v=2" data-src="assets/videos/mom.mp4?v=2" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg?v=2" data-src="assets/videos/redcarpet.mp4?v=2" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg?v=2" data-src="assets/videos/cards.mp4?v=2" aria-label="Ad spot: card game"></video></div>
     </div>
   </div>
 </section>
@@ -724,33 +732,40 @@ fbq('track', 'PageView');
   }
   function pause(v){ if (!v.paused && !v.getAttribute('data-src')) v.pause(); }
 
+  function playAll(){ for (var a = 0; a < vids.length; a++) play(vids[a]); }
+  function pauseAll(){ for (var b = 0; b < vids.length; b++) pause(vids[b]); }
+
   try {
-    if (!('IntersectionObserver' in window)) {
-      for (var i = 0; i < vids.length; i++) play(vids[i]);
-      return;
-    }
-    /* No rootMargin here: attach and play are the same decision now, and a generous
-       margin would spin up tiles that are still off screen -- the opposite of the
-       point. IntersectionObserver clips against the reel's overflow:hidden, so a tile
-       that has scrolled out of the marquee window reports as not intersecting. */
-    var io = new IntersectionObserver(function(entries){
+    if (!('IntersectionObserver' in window)) { playAll(); return; }
+
+    /* Observe the REEL, not the individual tiles.
+       Observing tiles was wrong: IntersectionObserver clips against ancestor
+       overflow, and .reel-outer is overflow:hidden, so a tile sitting outside the
+       marquee's visible window never intersects and therefore never got a src at
+       all. Only the two or three tiles on screen ever loaded, and the "6 of 8
+       paused" that looked like off-screen pausing working was really six tiles
+       that had never loaded.
+
+       The duplicate track also has to be primed before the marquee wraps onto it,
+       or the loop shows empty frames. So: when the reel enters the viewport, all
+       eight attach and play. That is four network fetches, not eight -- the second
+       set names the same four files and hits cache. */
+    var reel = document.querySelector('.reel-outer') || vids[0].parentElement;
+    var rio = new IntersectionObserver(function(entries){
       for (var j = 0; j < entries.length; j++) {
-        if (entries[j].isIntersecting) play(entries[j].target);
-        else pause(entries[j].target);
+        if (entries[j].isIntersecting) playAll(); else pauseAll();
       }
-    }, {threshold: 0.01});
-    for (var k = 0; k < vids.length; k++) io.observe(vids[k]);
+    }, {rootMargin: '200px 0px'});
+    rio.observe(reel);
 
     /* Backgrounded tab: stop everything. Browsers throttle timers but will happily
        keep decoding video. */
     document.addEventListener('visibilitychange', function(){
-      for (var n = 0; n < vids.length; n++) {
-        if (document.hidden) pause(vids[n]);
-        else if (vids[n].getBoundingClientRect().top < (window.innerHeight||0)) play(vids[n]);
-      }
+      if (document.hidden) pauseAll();
+      else if (reel.getBoundingClientRect().top < (window.innerHeight || 0)) playAll();
     });
   } catch (e) {
-    for (var m = 0; m < vids.length; m++) play(vids[m]);
+    playAll();
   }
 })();
 </script>
