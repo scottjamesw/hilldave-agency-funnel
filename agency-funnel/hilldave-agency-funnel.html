@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Motion gate. The reveal animation's hidden state is scoped to .js-fx, so it only
+     exists if this line ran. No JS (or an in-app webview that blocks it) means the
+     page renders as plain visible text instead of blank white. Must stay in <head>,
+     before the stylesheet, so there is no flash of hidden content. -->
+<script>document.documentElement.className+=' js-fx';</script>
 <title>HillDave Agency — Generation Is Everywhere. Judgment Is Not.</title>
 <meta name="description" content="Before we meet, we write your brand position from your site and build the first ads from it. Yours either way. Thirty years of Fortune 500 production.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,9 +55,19 @@
   }
   /* label lead-in removed */
 
-  /* ---- Motion system ---- */
-  .fx{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  /* ---- Motion system ----
+     The hidden state is deliberately scoped to .js-fx (set by the head script).
+     Unscoped, a single JS failure leaves the whole page at opacity:0 — which is
+     what shipped, and what mobile ad traffic saw. Specificity note: .js-fx .fx is
+     (0,2,0), so anything meant to override it must match that or later — see the
+     reduced-motion block. */
+  .js-fx .fx{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
   .fx.in{opacity:1;transform:none}
+  /* Anything already on screen at load paints immediately — no fade, no stagger.
+     A .7s fade plus a .32s delay meant paid traffic waited ~1s to read the offer,
+     and the headline is the LCP element. The cascade still runs on scroll, which is
+     where it was always the point. Needs (0,3,0) to beat the .fx.dN delay rules. */
+  .js-fx .fx.in-now{transition:none;transition-delay:0s}
   .fx.d1{transition-delay:.08s}.fx.d2{transition-delay:.16s}.fx.d3{transition-delay:.24s}.fx.d4{transition-delay:.32s}
 
   /* ---- Header ---- */
@@ -84,14 +99,23 @@
   .header-cta:hover{color:var(--orange)}
   .header-cta:focus-visible{outline:3px solid var(--orange);outline-offset:4px}
 
-  /* ---- Hero ---- */
-  .hero{padding:var(--s7) 0;position:relative}
+  /* ---- Hero ----
+     Hero vertical metrics are fold-driven, not rhythm-driven: at var(--s7) with the
+     old 148px headline the CTA landed at y=976 against an 865px fold, i.e. the offer
+     and the button were both off screen on arrival at every laptop width. 56px is on
+     the 8px scale but is set as a measured value on purpose — it is answering "does
+     the CTA clear the fold at 1280x800", which the rhythm scale cannot know. */
+  .hero{padding:56px 0;position:relative}
   .hero .grid12{align-items:start}
   .hero-copy{grid-column:1/9;position:relative;z-index:2}
   .hero-media{grid-column:9/13;position:relative;z-index:3}
-  .hero .label{margin-bottom:30px;display:block}
+  .hero .label{margin-bottom:22px;display:block}
   .hero h1{
-    font-size:clamp(56px,9.5vw,148px);
+    /* Ceiling lowered 148 -> 104. max-width:12ch holds the headline at four lines,
+       so the ceiling is what sets the block's height: 4 lines x 148px x .92 = 545px
+       of headline alone pushed everything below it past the fold. Do not raise the
+       ceiling without re-measuring the CTA against a 800px-tall viewport. */
+    font-size:clamp(48px,7.4vw,104px);
     line-height:.92;
     max-width:12ch;
   }
@@ -99,7 +123,7 @@
   .hero .sub{
     font-size:clamp(17px,1.6vw,20px);
     max-width:52ch;
-    margin:36px 0 44px;
+    margin:28px 0 34px;
     line-height:1.6;
   }
   .cta{
@@ -409,7 +433,9 @@
   @media(prefers-reduced-motion:reduce){
     *{transition:none!important}
     html{scroll-behavior:auto}
-    .fx{opacity:1;transform:none}
+    /* Must be .js-fx .fx, not .fx — the hidden state is now (0,2,0) and a bare
+       .fx (0,1,0) loses to it, which would hide the page from reduced-motion users. */
+    .js-fx .fx{opacity:1;transform:none}
     .reel-track{animation:none;width:auto}
     .reel-outer{overflow-x:auto}
     .reel-track .tile:nth-child(n+5){display:none}
@@ -559,17 +585,24 @@ fbq('track', 'PageView');
   </div>
   <!-- WORK MARQUEE: tiles auto-scroll and loop seamlessly. The track is duplicated once
        (required for the loop) — when swapping in videos, make the SAME swap in both copies.
-       To go live: add <source src="YOUR_VIDEO.mp4" type="video/mp4"> inside each <video>. -->
+
+       Sources are in data-src, NOT src, and are attached by JS when the reel scrolls
+       into view. With eight plain autoplay <video> tags this section pulled 30.5 MB on
+       every pageview — the four files are ~15 MB and each was fetched twice, because
+       the duplicate track requests them concurrently and neither request can serve the
+       other from cache. On cellular that is the page not loading. Posters are 20-52 KB
+       and carry the section on their own, which is also the no-JS fallback.
+       If you add a tile: poster + data-src, never src. -->
   <div class="reel-outer" aria-label="A reel of recent work">
     <div class="reel-track">
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/driver.jpg" aria-label="Ad spot: desert drive"><source src="assets/videos/driver.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/mom.jpg" aria-label="Social ad: Baby Ktan"><source src="assets/videos/mom.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/redcarpet.jpg" aria-label="Ad spot: red carpet"><source src="assets/videos/redcarpet.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/cards.jpg" aria-label="Ad spot: card game"><source src="assets/videos/cards.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/driver.jpg" aria-label="Ad spot: desert drive"><source src="assets/videos/driver.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/mom.jpg" aria-label="Social ad: Baby Ktan"><source src="assets/videos/mom.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/redcarpet.jpg" aria-label="Ad spot: red carpet"><source src="assets/videos/redcarpet.mp4" type="video/mp4"></video></div>
-      <div class="tile"><video autoplay muted loop playsinline poster="assets/posters/cards.jpg" aria-label="Ad spot: card game"><source src="assets/videos/cards.mp4" type="video/mp4"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/driver.jpg" data-src="assets/videos/driver.mp4" aria-label="Ad spot: desert drive"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/mom.jpg" data-src="assets/videos/mom.mp4" aria-label="Social ad: Baby Ktan"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/redcarpet.jpg" data-src="assets/videos/redcarpet.mp4" aria-label="Ad spot: red carpet"></video></div>
+      <div class="tile"><video autoplay muted loop playsinline preload="none" poster="assets/posters/cards.jpg" data-src="assets/videos/cards.mp4" aria-label="Ad spot: card game"></video></div>
     </div>
   </div>
 </section>
@@ -695,19 +728,93 @@ fbq('track', 'PageView');
 </footer>
 
 <script>
+/* Scroll reveal. Three independent guarantees that content is never left invisible,
+   because every previous version had exactly one and it failed on mobile:
+     1. the hidden state only exists under .js-fx (see <head>), so no JS = visible;
+     2. anything already on screen is revealed synchronously here, not on a callback;
+     3. a 1000ms timer reveals whatever is left, whatever the observer did.
+   Wrapped in try/catch that reveals everything on throw — a blank page is a far
+   worse outcome than a missing animation. Indexed loops, not NodeList.forEach,
+   which older in-app webviews lack. */
 (function(){
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var els = document.querySelectorAll('.fx');
-  if(reduced || !('IntersectionObserver' in window)){
-    els.forEach(function(el){el.classList.add('in')});
-    return;
+  var i;
+  function revealAll(){
+    for(i=0;i<els.length;i++){els[i].classList.add('in');}
   }
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
-    });
-  },{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
-  els.forEach(function(el){io.observe(el)});
+  try{
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduced || !('IntersectionObserver' in window)){ revealAll(); return; }
+
+    var io = new IntersectionObserver(function(entries){
+      for(var j=0;j<entries.length;j++){
+        if(entries[j].isIntersecting){
+          entries[j].target.classList.add('in');
+          io.unobserve(entries[j].target);
+        }
+      }
+    /* threshold:0 — any single pixel counts. At 0.15 an element taller than ~6x its
+       visible slice never qualified: at 500px wide the hero CTA block sat at ratio
+       0.10 and only revealed by luck, on a reflow when the webfont landed. */
+    },{threshold:0,rootMargin:'0px 0px -40px 0px'});
+
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    for(i=0;i<els.length;i++){
+      var r = els[i].getBoundingClientRect();
+      /* Already in view: reveal now, unanimated. Do not wait for the observer's first
+         callback — that dispatch is what mobile was waiting on. */
+      if(r.top < vh && r.bottom > 0){ els[i].className += ' in in-now'; }
+      else { io.observe(els[i]); }
+    }
+
+    setTimeout(revealAll,1000);
+  }catch(e){
+    revealAll();
+  }
+})();
+
+/* Reel videos: attach data-src only once the reel is actually on screen, so the
+   30.5 MB of mp4 is never on the critical path. Unique files load first; the
+   duplicate track waits 1200ms so its identical URLs come from cache instead of
+   racing the originals over the wire. Failure mode is the poster, which is the
+   same thing a no-JS visitor gets — never a blank tile. */
+(function(){
+  var reel = document.querySelector('.reel-outer');
+  if(!reel) return;
+  var loaded = false;
+  function load(){
+    if(loaded) return;
+    loaded = true;
+    var vids = reel.querySelectorAll('video[data-src]');
+    var seen = {};
+    for(var i=0;i<vids.length;i++){
+      (function(v){
+        /* Reduced-motion hides the duplicate half of the track (display:none).
+           Don't spend a visitor's data on tiles they will never see. */
+        if(v.offsetParent === null) return;
+        var url = v.getAttribute('data-src');
+        var dupe = !!seen[url];
+        seen[url] = true;
+        setTimeout(function(){
+          v.src = url;
+          v.removeAttribute('data-src');
+          var p = v.play();
+          if(p && p.catch) p.catch(function(){});
+        }, dupe ? 1200 : 0);
+      })(vids[i]);
+    }
+  }
+  try{
+    if(!('IntersectionObserver' in window)){ load(); return; }
+    var io = new IntersectionObserver(function(entries){
+      for(var j=0;j<entries.length;j++){
+        if(entries[j].isIntersecting){ load(); io.disconnect(); }
+      }
+    },{rootMargin:'200px 0px'});
+    io.observe(reel);
+  }catch(e){
+    load();
+  }
 })();
 </script>
 
