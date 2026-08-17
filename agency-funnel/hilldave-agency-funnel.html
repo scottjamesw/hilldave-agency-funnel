@@ -69,29 +69,45 @@
   }
   .header-cta:hover{color:var(--orange)}
 
-  /* ---- Hero. Type scaled down from the brand page so the CTA clears the
-         fold at 390px, 500px and 1440px. ---- */
-  .hero{padding:56px 0 64px;position:relative}
-  .hero .grid12{align-items:start}
-  .hero-copy{grid-column:1/8;position:relative;z-index:2}
-  .hero-media{grid-column:8/13;position:relative;z-index:3}
-  .hero .label{margin-bottom:22px;display:block}
+  /* ---- Hero.
+     The 9:16 video that used to hold columns 8-13 is gone. Rather than let the
+     copy stretch to a 28-character measure across the full grid, the headline
+     takes the whole width as a two-line assertion and the supporting material
+     drops into one horizontal band beneath it: promise left, action right.
+     That is also what keeps the button above the fold on a 800px-tall laptop --
+     stacking sub, button and promise vertically is what pushed it under. ---- */
+  .hero{padding:60px 0 72px;position:relative}
+  .hero .grid12{align-items:start;row-gap:40px}
+  /* The rule closes the assertion and gives the band below a defined top edge, so
+     the promise and the action read as one unit instead of two floating columns.
+     It sits on .hero-head, which already spans 1-13, so it needs no extra element. */
+  .hero-head{grid-column:1/13;border-bottom:1px solid #e8e8e8;padding-bottom:38px}
+  .hero .label{margin-bottom:20px;display:block}
   .hero h1{
-    font-size:clamp(42px,5.6vw,84px);
-    line-height:.94;
-    max-width:17ch;
+    /* No max-width: the two spans are blocks, so the line breaks are authored,
+       not measured. Sized to the measure rather than by eye -- the longer line is
+       9.87x the font size, the content column is 1160px at --maxw, so 112px sets
+       it at 95% of full width and 117px is where it would overflow. Re-measure
+       before raising either number. */
+    font-size:clamp(38px,7.64vw,112px);
+    line-height:.92;
   }
   /* Direct children only. Without the > the nested .dot span becomes a block
      and the orange period orphans onto its own line at narrow widths. */
   .hero h1 > span{display:block}
   .hero h1 .dot{display:inline}
   .hero .sub{
+    grid-column:1/7;
     font-size:clamp(17px,1.5vw,21px);
-    max-width:46ch;
-    margin:24px 0 30px;
+    /* 27ch, not 34: at three lines the promise column carries enough vertical
+       weight to sit opposite the button-and-guarantee stack without the band
+       going lopsided. */
+    max-width:27ch;
+    margin:0;
     line-height:1.55;
     font-weight:500;
   }
+  .hero-act{grid-column:8/13;display:flex;flex-direction:column;align-items:flex-start}
   .cta{
     display:inline-block;
     background:var(--orange);
@@ -108,20 +124,21 @@
   }
   .cta:hover{background:#e55a28;transform:translateY(-2px)}
   .cta:focus-visible{outline:3px solid var(--charcoal);outline-offset:3px}
+  /* The orange left rule is this brand's mark of a commitment -- it is the same
+     device as .capacity. Putting it here makes "yours even if we never work
+     together" read as part of the offer, standing beside the button, rather than
+     as fine print underneath it. That promise is the only genuinely unusual claim
+     on the page, so it gets the page's one piece of emphasis. */
   .micro{
     display:block;
-    color:var(--gray);
+    color:var(--charcoal);
     font-size:14px;
-    margin-top:16px;
-    max-width:46ch;
+    margin-top:20px;
+    max-width:34ch;
     line-height:1.6;
+    border-left:3px solid var(--orange);
+    padding-left:16px;
   }
-  .hero-tile{
-    background:var(--charcoal);
-    overflow:hidden;
-    box-shadow:0 24px 60px rgba(26,26,26,.14);
-  }
-  .hero-tile video{display:block;width:100%;height:auto}
 
   /* ---- Proof band ---- */
   .proofband{background:var(--charcoal);color:var(--white);padding:52px 0 48px}
@@ -311,9 +328,10 @@
     .lockup-mark{height:58px}
     .lockup-name{font-size:24px;white-space:nowrap}
     .hero{padding-top:36px;padding-bottom:48px}
-    .hero-copy{grid-column:1/13}
-    .hero-media{grid-column:1/13;margin-top:40px}
-    .hero-tile{max-width:300px;margin:0 auto 0 0}
+    .hero .grid12{row-gap:28px}
+    /* The band collapses to a stack. Promise then action, same order as reading. */
+    .hero .sub{grid-column:1/13;max-width:40ch}
+    .hero-act{grid-column:1/13}
     .rail{grid-column:1/13;margin-bottom:18px}
     .rail .label{position:static}
     .main{grid-column:1/13}
@@ -388,32 +406,20 @@ fbq('track', 'PageView');
          The offer, the stack, the risk-kill and the CTA paint at full opacity
          on first frame, with no transition and no observer involved. Animating
          the hero is what blanked the original page. Do not add .fx here. -->
-    <div class="hero-copy">
+    <div class="hero-head">
       <span class="label">For brands that could never buy Fortune 500 advertising</span>
       <h1>
         <span>Your brand position,</span>
         <span>written free before we meet<span class="dot">.</span></span>
       </h1>
-      <p class="sub">Your first ads built from it. Finished before you arrive. Yours either way.</p>
-      <div>
-        <a href="#book" class="cta">Book thirty minutes &rarr;</a>
-        <span class="micro">No questionnaire. No pitch. Yours even if we never work together.</span>
-      </div>
     </div>
-    <div class="hero-media">
-      <div class="hero-tile">
-        <!-- s2_nochar, transcoded 70 MB -> 352 KB (720x1280, 10s, no audio). The
-             70 MB master cannot autoplay on cellular; that weight is what made the
-             old page hang on mobile. width/height are set so the tile reserves its
-             box before the poster decodes and the hero does not shift.
-             data-src, not src: attached by the lazy loader below. Poster is 32 KB
-             and is what a no-JS visitor sees. -->
-        <video class="hero-video" autoplay muted loop playsinline preload="none"
-               width="720" height="1280"
-               poster="assets/posters/hero-position.jpg"
-               data-src="assets/videos/hero-position.mp4"
-               aria-label="Ad spot: two in the morning"></video>
-      </div>
+    <!-- The headline asserts; this band answers it. Promise on the left, action on
+         the right, on one row rather than stacked -- which is also what keeps the
+         button above the fold on a 800px-tall laptop. -->
+    <p class="sub">Your first ads built from it. Finished before you arrive. Yours either way.</p>
+    <div class="hero-act">
+      <a href="#book" class="cta">Book thirty minutes &rarr;</a>
+      <span class="micro">No questionnaire. No pitch. Yours even if we never work together.</span>
     </div>
   </div>
 </div>
@@ -550,29 +556,6 @@ fbq('track', 'PageView');
         <li class="fx d3">The position is yours if you hire us.</li>
         <li class="fx d4">The position is yours if you do not.</li>
       </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     8. WHAT AN ENGAGEMENT DELIVERS. Em dashes removed per the
-        Aug 13 ruling. Periods only, no substituted punctuation.
-     ============================================================ -->
-<section>
-  <div class="wrap grid12">
-    <div class="rail"><span class="label fx">If you do hire us</span></div>
-    <div class="main">
-      <h2 class="fx">Seven steps. One outcome<span class="dot">.</span></h2>
-      <ul class="deliver">
-        <li class="fx"><span><b>Your brand bible and position.</b> Defined and written down.</span></li>
-        <li class="fx"><span><b>Your data, read.</b> Channels, ad accounts, competitors, trends.</span></li>
-        <li class="fx"><span><b>Your analytics, interpreted.</b> What performs, and why.</span></li>
-        <li class="fx"><span><b>Your winning strategy.</b> Set from the data.</span></li>
-        <li class="fx"><span><b>Your copy.</b> Written to convert.</span></li>
-        <li class="fx"><span><b>Your creative and content.</b> Produced on the HillDave Video Engine, published on schedule.</span></li>
-        <li class="fx"><span><b>Your results, optimized.</b> Fed back into the strategy.</span></li>
-      </ul>
-      <p class="deliver-close fx">Step one is what you get free when we meet. The engagement is the other six. And the execution.</p>
     </div>
   </div>
 </section>
