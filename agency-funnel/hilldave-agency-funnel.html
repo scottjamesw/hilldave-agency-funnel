@@ -700,32 +700,57 @@ fbq('track', 'PageView');
   }, 900);
 })();
 
-/* Hero + reel video: attach sources only when in view, so no video is ever on the
-   critical path. Failure mode is the poster, which is also what a no-JS visitor
-   gets -- never a blank tile. */
+/* Reel video: attach sources only when in view, so no video is ever on the critical
+   path, then keep only the tiles actually on screen decoding. Eight <video> elements
+   playing simultaneously is real battery and main-thread cost on a phone, and most of
+   them are outside the marquee's visible window at any moment. Failure mode throughout
+   is the poster, which is also what a no-JS visitor gets -- never a blank tile.
+
+   The eight tiles reference the same four files by design: the track is duplicated to
+   make the marquee loop seamlessly, so the second set hits cache. */
 (function(){
-  var vids = document.querySelectorAll('video[data-src]');
+  var vids = document.querySelectorAll('video[data-src], .reel-outer video');
   if (!vids.length) return;
+
   function attach(v){
-    if (!v.getAttribute('data-src')) return;
-    v.src = v.getAttribute('data-src');
-    v.removeAttribute('data-src');
+    var url = v.getAttribute('data-src');
+    if (url) { v.src = url; v.removeAttribute('data-src'); }
+  }
+  function play(v){
+    if (v.getAttribute('data-src')) attach(v);
+    if (!v.paused) return;
     var p = v.play();
     if (p && p.catch) p.catch(function(){});
   }
+  function pause(v){ if (!v.paused && !v.getAttribute('data-src')) v.pause(); }
+
   try {
     if (!('IntersectionObserver' in window)) {
-      for (var i = 0; i < vids.length; i++) attach(vids[i]);
+      for (var i = 0; i < vids.length; i++) play(vids[i]);
       return;
     }
+    /* No rootMargin here: attach and play are the same decision now, and a generous
+       margin would spin up tiles that are still off screen -- the opposite of the
+       point. IntersectionObserver clips against the reel's overflow:hidden, so a tile
+       that has scrolled out of the marquee window reports as not intersecting. */
     var io = new IntersectionObserver(function(entries){
       for (var j = 0; j < entries.length; j++) {
-        if (entries[j].isIntersecting) { attach(entries[j].target); io.unobserve(entries[j].target); }
+        if (entries[j].isIntersecting) play(entries[j].target);
+        else pause(entries[j].target);
       }
-    }, {rootMargin: '200px 0px'});
+    }, {threshold: 0.01});
     for (var k = 0; k < vids.length; k++) io.observe(vids[k]);
+
+    /* Backgrounded tab: stop everything. Browsers throttle timers but will happily
+       keep decoding video. */
+    document.addEventListener('visibilitychange', function(){
+      for (var n = 0; n < vids.length; n++) {
+        if (document.hidden) pause(vids[n]);
+        else if (vids[n].getBoundingClientRect().top < (window.innerHeight||0)) play(vids[n]);
+      }
+    });
   } catch (e) {
-    for (var n = 0; n < vids.length; n++) attach(vids[n]);
+    for (var m = 0; m < vids.length; m++) play(vids[m]);
   }
 })();
 </script>
@@ -787,7 +812,12 @@ fbq('track', 'PageView');
       e.preventDefault();
       if (!intakeForm.checkValidity()) { intakeForm.reportValidity(); return; }
 
+      /* Both events fire on submit, deliberately. InitiateCheckout marks entering
+         slot selection; Lead marks the intake itself, and is what the campaign
+         optimises toward. Guarded and wrapped: a blocked or broken fbq can never
+         stop someone reaching the scheduler. */
       fireInitiateCheckout();
+      try { if (typeof fbq === 'function') fbq('track', 'Lead'); } catch (err) {}
 
       var base = 'https://meetings.hubspot.com/scott-weitz/hilldave-first-meet';
       var qp = new URLSearchParams();
