@@ -762,10 +762,18 @@ fbq('track', 'PageView');
        observer's first callback — that dispatch is what mobile was waiting on. */
     function sweep(){
       var vh = window.innerHeight || document.documentElement.clientHeight;
+      /* 1.6x the fold, not 1x, and this margin is the whole point. At script time
+         Bebas Neue has not applied and the hero measures short in the fallback face,
+         so an element that ends up above the fold can still measure below it here.
+         Reading the exact fold would mean waiting on document.fonts.ready, which
+         resolves after the load event — that is a race, and losing it shows a blank
+         CTA. Being generous about what counts as "on arrival" removes the race
+         instead of timing it. Cost is that the cascade starts a screen further down. */
+      var edge = vh * 1.6;
       for(var k=0;k<els.length;k++){
         if(els[k].classList.contains('in')) continue;
         var r = els[k].getBoundingClientRect();
-        if(r.top < vh && r.bottom > 0){ els[k].className += ' in in-now'; }
+        if(r.top < edge && r.bottom > 0){ els[k].className += ' in in-now'; }
       }
     }
 
