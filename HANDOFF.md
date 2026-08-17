@@ -1,12 +1,97 @@
 # HillDave Agency Funnel — Handoff / Resume Notes
 
-_Last updated: **2026-08-07** — page live at **position.hilldave.com**, email sequence built and ON, sending domain DKIM-verified. **One item left: click "Check again" on the SPF row in HubSpot.**_
+_Last updated: **2026-08-17**. Page live at **position.hilldave.com**. Repo, live file and `origin/agency-funnel` are all in sync as of this date._
 
 ---
 
-## ▶ START HERE WHEN YOU COME BACK
+## ▶ START HERE WHEN YOU COME BACK — 2026-08-17
 
-**The only outstanding action is a single button click.**
+### Shipped today: the page was blank for mobile ad traffic
+
+Paid mobile clicks were landing on a white page — logo, "GOLD STANDARD" and the
+nav link only. Measured: with JS disabled at 390x844, **202 of the page's 2003
+characters of text were visible.**
+
+**The cause was not the IntersectionObserver.** Wrapping `IntersectionObserver`
+ahead of the page scripts shows it firing at 293–1199ms and correctly revealing
+already-visible elements at every viewport, even under 6x CPU throttling on a
+400kbps link. The defect was that `.fx{opacity:0}` was **unconditional** — there
+was no path to visible text that didn't run through JS. Meta ad clicks open in
+the Instagram/Facebook in-app webview, which is exactly where that breaks.
+
+**Now guarded three independent ways.** If you touch the motion system, all three
+have to survive:
+1. the hidden state is scoped to `.js-fx`, set by an inline `<head>` script — no JS
+   renders as plain visible text, not blank white;
+2. anything within 1.6x the fold is revealed **synchronously** at init off a
+   `getBoundingClientRect` check, never waiting on a callback;
+3. a 1000ms timer reveals everything left, whatever the observer did.
+Plus `try/catch` that reveals everything on throw, and indexed loops instead of
+`NodeList.forEach` (older in-app webviews lack it).
+
+**Three traps found while fixing it, all worth knowing:**
+
+- **`threshold:0.15` was a real, width-dependent bug.** An element taller than ~6x
+  its visible slice never qualified. At 500px wide the hero CTA block sat at ratio
+  **0.10** and only revealed by luck, on a reflow when the webfont landed. Block the
+  font and it stayed invisible forever. Now `threshold:0`.
+- **Specificity.** The hidden rule is now `.js-fx .fx` = (0,2,0). The reduced-motion
+  override was a bare `.fx` = (0,1,0) and would have **silently lost**, hiding the
+  page from reduced-motion users. It is now `.js-fx .fx` too. Anything meant to beat
+  the hidden state must match (0,2,0) or later.
+- **Never key the reveal off font timing.** `document.fonts.ready` resolves *after*
+  the load event, and Bebas Neue is much taller per line than the fallback, so at
+  script time the hero measures short and an element that ends up above the fold can
+  measure below it. Sweeping at exactly 1x the fold lost that race on live and showed
+  a blank CTA at 1280x800. The 1.6x band removes the race instead of timing it.
+
+**Above-the-fold content no longer fades** (`.in-now`). A .7s fade plus a .32s
+stagger delay meant ad traffic waited ~1s to read the offer, on the LCP element. The
+cascade still runs on scroll.
+
+### Also shipped: hero CTA was below the fold at every laptop width
+
+Measured `top:976` against an 865px fold and `top:941` against 900px. `max-width:12ch`
+holds the headline at four lines, so the clamp ceiling set the block height — 4 lines
+x 148px x .92 = **545px of headline alone**. Ceiling 148 → 104, hero padding 88 → 56,
+label and sub margins tightened. **No copy changed, line breaking unchanged.**
+
+CTA now fully above the fold at 360x780, 390x844, 430x932, 500x723, 768x1024,
+1024x768, 1280x800, 1440x900, 1602x865, 1920x1080. **Worst clearance is 21px at
+1280x800 — re-measure there before enlarging any hero type.**
+
+### Also shipped: the reel was pulling 30.5 MB per pageview
+
+Eight plain `autoplay <video>` tags over four ~15 MB files, **each fetched twice**,
+because the duplicated marquee track requests them concurrently and neither request
+can serve the other from cache. On cellular that alone is the page not loading.
+Sources are now `data-src` + `preload="none"`, attached when the reel scrolls into
+view, duplicates deferred 1200ms so they hit cache. **mp4 requests on load: 8 → 0.**
+Posters (20–52 KB) carry the section and are the no-JS fallback.
+**If you add a tile: `poster` + `data-src`, never `src`.**
+
+### Verification harness
+Rebuild it rather than eyeballing this page — every bug here was invisible to visual
+desktop testing. Playwright driving system Chrome (`channel:'chrome'`; the cached
+ms-playwright build is too old). What it checks: hero visible at zero scroll,
+`.fx:not(.in)).length === 0` at 1.2s, CTA `getBoundingClientRect().top < innerHeight`,
+render with JS disabled, mp4 request count on load. Wrap `IntersectionObserver` via
+`addInitScript` to see whether it fires at all — that is what corrected the diagnosis.
+
+### Still open
+- **The hero video has never played.** `<video>` at the hero has **no `<source>`** —
+  it has only ever shown its poster (`mom.jpg`). `assets/videos/mom.mp4` exists (1.1 MB).
+  Wiring it is a visible change and a judgment call, so it was left alone.
+- At 1280x800 the "Before we meet…" micro line sits ~3px below the fold. Buying it
+  back costs 58px of hero. Left deliberately.
+- Assets are **not content-hashed** and static files carry `expires 30d` — replacing
+  one under the same name is stale for up to 30 days.
+
+---
+
+## Older: the SPF item (2026-08-07)
+
+**Check whether this is still outstanding — it may have been done.**
 
 1. Go to: HubSpot → **Settings → Domains & URLs → Domains → Email Sending**
    (or `https://app.hubspot.com/settings/50739084/domains/add-domain/HOSTING_SETUP/EMAIL/hilldave.com`)
