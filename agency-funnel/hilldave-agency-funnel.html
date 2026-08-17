@@ -758,14 +758,29 @@ fbq('track', 'PageView');
        0.10 and only revealed by luck, on a reflow when the webfont landed. */
     },{threshold:0,rootMargin:'0px 0px -40px 0px'});
 
-    var vh = window.innerHeight || document.documentElement.clientHeight;
-    for(i=0;i<els.length;i++){
-      var r = els[i].getBoundingClientRect();
-      /* Already in view: reveal now, unanimated. Do not wait for the observer's first
-         callback — that dispatch is what mobile was waiting on. */
-      if(r.top < vh && r.bottom > 0){ els[i].className += ' in in-now'; }
-      else { io.observe(els[i]); }
+    /* Reveal everything currently on screen, unanimated. Do not wait for the
+       observer's first callback — that dispatch is what mobile was waiting on. */
+    function sweep(){
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      for(var k=0;k<els.length;k++){
+        if(els[k].classList.contains('in')) continue;
+        var r = els[k].getBoundingClientRect();
+        if(r.top < vh && r.bottom > 0){ els[k].className += ' in in-now'; }
+      }
     }
+
+    sweep();
+    for(i=0;i<els.length;i++){ io.observe(els[i]); }
+
+    /* Sweep again once layout settles. Bebas Neue is far taller per line than the
+       fallback, so at script time the hero measures short: at 1280x800 the CTA block
+       sat just below the fold pre-font, got handed to the observer, and faded in over
+       ~1s instead of being there on arrival. Fold clearance at that width is 21px, so
+       this is not an edge case, it is every laptop. */
+    if(document.fonts && document.fonts.ready && document.fonts.ready.then){
+      document.fonts.ready.then(sweep).catch(function(){});
+    }
+    window.addEventListener('load', sweep);
 
     setTimeout(revealAll,1000);
   }catch(e){
