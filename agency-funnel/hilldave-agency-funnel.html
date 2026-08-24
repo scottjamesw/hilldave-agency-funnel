@@ -623,11 +623,6 @@ fbq('track', 'PageView');
           <input id="url" type="url" placeholder="yourbrand.com" required>
         </div>
         <div class="field">
-          <label for="competitors">Your top three competitors</label>
-          <input id="competitors" type="text" placeholder="Optional">
-          <span class="hint">Optional. We will find them anyway.</span>
-        </div>
-        <div class="field">
           <label for="email">Email</label>
           <input id="email" type="email" placeholder="you@yourbrand.com" required>
         </div>
@@ -843,7 +838,13 @@ fbq('track', 'PageView');
       var brand      = (document.getElementById('brand')       || {}).value || '';
       var siteUrl    = (document.getElementById('url')         || {}).value || '';
       var spend      = (document.getElementById('spend')       || {}).value || '';
-      var competitors= (document.getElementById('competitors') || {}).value || '';
+      /* Field removed from the form on 2026-08-19. The HubSpot property
+         your_top_three_competitors_ is deliberately NOT deleted -- removing it would
+         break existing records -- and the field is still declared on the HubSpot form,
+         so the payload keeps sending it as an empty string. That holds the payload
+         shape at the exact one verified HTTP 200; dropping the key would be a second
+         change to a seam that has 400'd before. */
+      var competitors= '';
 
       if (email) qp.set('email', email);
       if (nameVal) {
